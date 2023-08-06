@@ -1,0 +1,10 @@
+version: 3
+
+tasks:
+  tidy:
+    cmds:
+      - go mod tidy
+
+  run:
+    cmds:
+      - go run cmd/server/main.go
