@@ -8,3 +8,7 @@ tasks:
   run:
     cmds:
       - wgo run cmd/server/main.go
+
+  db:gen:
+    cmds:
+      - go generate ./ent

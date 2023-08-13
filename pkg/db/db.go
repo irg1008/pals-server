@@ -2,18 +2,26 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"irg1008/next-go/ent"
+	"irg1008/next-go/ent/migrate"
 	"irg1008/next-go/pkg/config"
 	"log"
 
-	"entgo.io/ent/dialect"
-	entsql "entgo.io/ent/dialect/sql"
-	_ "modernc.org/sqlite"
+	"github.com/labstack/echo/v4"
 )
 
-func getDBConnection() *sql.DB {
-	db, err := sql.Open("sqlite", config.GetConfig().DB_URL)
+type DB struct {
+	*ent.Client
+	Ctx context.Context
+}
+
+type CustomContext struct {
+	echo.Context
+	DB *DB
+}
+
+func getDBConnection() *ent.Client {
+	db, err := ent.Open("sqlite3", config.Env.DBUrl)
 
 	if err != nil {
 		log.Fatalf("failed opening connection to sqlite: %v", err)
@@ -22,18 +30,23 @@ func getDBConnection() *sql.DB {
 	return db
 }
 
-func ConnectDB() {
-	db := getDBConnection()
-	defer db.Close()
-
-	driver := entsql.OpenDB(dialect.SQLite, db)
-	client := ent.NewClient(ent.Driver(driver))
-	defer client.Close()
+func connectDB() (*ent.Client, context.Context) {
+	client := getDBConnection()
 
 	ctx := context.Background()
-	err := client.Schema.Create(ctx)
+	err := client.Schema.Create(ctx,
+		migrate.WithDropIndex(true),
+		migrate.WithDropColumn(true),
+	)
 
 	if err != nil {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
+
+	return client, ctx
+}
+
+func New() *DB {
+	client, ctx := connectDB()
+	return &DB{client, ctx}
 }

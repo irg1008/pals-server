@@ -1,6 +1,8 @@
 package main
 
-import "irg1008/next-go/internal"
+import (
+	"irg1008/next-go/internal"
+)
 
 func main() {
 	internal.StartServer()

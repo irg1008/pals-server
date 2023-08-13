@@ -1,21 +1,22 @@
 package internal
 
 import (
-	"irg1008/next-go/internal/config"
-	"irg1008/next-go/internal/routes/example"
+	"irg1008/next-go/internal/controllers"
+	"irg1008/next-go/pkg/config"
+	"irg1008/next-go/pkg/db"
 	"irg1008/next-go/pkg/log"
+	"log/slog"
 	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func applyAPIMiddlewares(e *echo.Group) {
-	// TODO: Move rate limit to fast key-value store
+func getLoggerMiddleware() echo.MiddlewareFunc {
+	debug := config.Env.IsDev
+	log.SetDefaultLogger(debug)
 
-	logger := log.GetLogger(config.GetConfig().IsDev)
-
-	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+	return middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogURI:      true,
 		LogStatus:   true,
 		LogMethod:   true,
@@ -23,30 +24,34 @@ func applyAPIMiddlewares(e *echo.Group) {
 		LogRemoteIP: true,
 
 		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
-			logger.Info().
-				Str("uri", v.URI).
-				Int("status", v.Status).
-				Str("latency", v.Latency.String()).
-				Str("from", v.RemoteIP).
-				Timestamp().
-				Msg(v.Method)
+			slog.Info(v.Method,
+				slog.String("uri", v.URI),
+				slog.Int("status", v.Status),
+				slog.String("duration", v.Latency.String()),
+				slog.String("from", v.RemoteIP),
+			)
 
 			return nil
 		},
-	}))
+	})
+}
 
+func applyAPIMiddlewares(e *echo.Group) {
+	e.Use(getLoggerMiddleware())
+	// TODO: Move rate limit to fast key-value store
 	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))
 	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
 		Timeout: 30 * time.Second,
 	}))
 }
 
-func APIRoute(e *echo.Echo) *echo.Group {
+func APIRoute(e *echo.Echo, db *db.DB) *echo.Group {
 	api := e.Group("/api")
 	applyAPIMiddlewares(api)
 
 	// Controllers
-	example.Routes(api)
+	controllers.AuthRoutes(api, db)
+	controllers.ProtectedRoutes(api)
 
 	return api
 }

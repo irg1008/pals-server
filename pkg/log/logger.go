@@ -1,20 +1,33 @@
 package log
 
 import (
-	"io"
 	"os"
+	"time"
 
-	"github.com/rs/zerolog"
+	"log/slog"
+
+	"github.com/lmittmann/tint"
 )
 
-func GetLogger(debug bool) zerolog.Logger {
-	var writter io.Writer
+func newLogger(debug bool) *slog.Logger {
+	w := os.Stderr
+	var handler slog.Handler
 
 	if debug {
-		writter = zerolog.ConsoleWriter{Out: os.Stderr}
+		handler = tint.NewHandler(w, &tint.Options{
+			Level:      slog.LevelDebug,
+			TimeFormat: time.Kitchen,
+			NoColor:    debug == false,
+		})
 	} else {
-		writter = os.Stderr
+		handler = slog.NewJSONHandler(w, nil)
 	}
 
-	return zerolog.New(writter)
+	return slog.New(handler)
+}
+
+func SetDefaultLogger(debug bool) *slog.Logger {
+	logger := newLogger(debug)
+	slog.SetDefault(logger)
+	return logger
 }

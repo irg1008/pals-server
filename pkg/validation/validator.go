@@ -2,6 +2,7 @@ package validation
 
 import (
 	"net/http"
+	"regexp"
 
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
@@ -18,6 +19,29 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 	return nil
 }
 
-func GetCustomValidator() *CustomValidator {
-	return &CustomValidator{validator: validator.New()}
+func compiles(value string, fl validator.FieldLevel) bool {
+	re := regexp.MustCompile(value)
+	return re.MatchString(fl.Field().String())
+}
+
+var containsLetter = validator.Func(func(fl validator.FieldLevel) bool {
+	return compiles(`[a-zA-Z]`, fl)
+})
+
+var containsNumber = validator.Func(func(fl validator.FieldLevel) bool {
+	return compiles(`[0-9]`, fl)
+})
+
+var containsSpecial = validator.Func(func(fl validator.FieldLevel) bool {
+	return compiles(`[^a-zA-Z0-9]`, fl)
+})
+
+var isValidPassword = validator.Func(func(fl validator.FieldLevel) bool {
+	return containsLetter(fl) && containsNumber(fl) && containsSpecial(fl)
+})
+
+func NewCustomValidator() *CustomValidator {
+	validator := validator.New()
+	validator.RegisterValidation("password", isValidPassword)
+	return &CustomValidator{validator}
 }

@@ -1,7 +1,8 @@
 package internal
 
 import (
-	"irg1008/next-go/internal/config"
+	"irg1008/next-go/pkg/config"
+	"irg1008/next-go/pkg/db"
 	"irg1008/next-go/pkg/tls"
 	"irg1008/next-go/pkg/validation"
 
@@ -14,7 +15,7 @@ func applySecurityMiddlewares(e *echo.Echo) {
 	e.Use(middleware.Recover())
 	e.Use(middleware.Secure())
 	e.Use(middleware.CORS())
-	e.Use(middleware.CSRF())
+	// e.Use(middleware.CSRF())
 }
 
 func setUpTLS(e *echo.Echo) {
@@ -22,26 +23,34 @@ func setUpTLS(e *echo.Echo) {
 	e.Use(middleware.HTTPSRedirect())
 }
 
-func startServer(e *echo.Echo) error {
-	conf := config.GetConfig()
+func startServer(e *echo.Echo) (err error) {
+	port := config.Env.Port
 
-	if conf.IsDev {
-		return e.Start(conf.Port)
+	if config.Env.IsDev {
+		return e.Start(port)
+	}
+
+	err = e.StartAutoTLS(port)
+	if err != nil {
+		return
 	}
 
 	setUpTLS(e)
-	return e.StartAutoTLS(conf.Port)
+	return
 }
 
 func StartServer() {
 	e := echo.New()
 	e.HideBanner = true
-	e.Validator = validation.GetCustomValidator()
+	e.Validator = validation.NewCustomValidator()
+
+	db := db.New()
+	defer db.Close()
 
 	applySecurityMiddlewares(e)
 
 	e.Static("/", "public")
-	APIRoute(e)
+	APIRoute(e, db)
 
 	e.Logger.Fatal(startServer(e))
 }
