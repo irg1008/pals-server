@@ -4,7 +4,6 @@ import (
 	"context"
 	"irg1008/next-go/ent"
 	"irg1008/next-go/ent/migrate"
-	"irg1008/next-go/pkg/config"
 	"log"
 
 	"github.com/labstack/echo/v4"
@@ -20,8 +19,8 @@ type CustomContext struct {
 	DB *DB
 }
 
-func getDBConnection() *ent.Client {
-	db, err := ent.Open("sqlite3", config.Env.DBUrl)
+func getDBConnection(url string) *ent.Client {
+	db, err := ent.Open("sqlite3", url)
 
 	if err != nil {
 		log.Fatalf("failed opening connection to sqlite: %v", err)
@@ -30,8 +29,8 @@ func getDBConnection() *ent.Client {
 	return db
 }
 
-func connectDB() (*ent.Client, context.Context) {
-	client := getDBConnection()
+func connectDB(url string) (*ent.Client, context.Context) {
+	client := getDBConnection(url)
 
 	ctx := context.Background()
 	err := client.Schema.Create(ctx,
@@ -46,7 +45,7 @@ func connectDB() (*ent.Client, context.Context) {
 	return client, ctx
 }
 
-func New() *DB {
-	client, ctx := connectDB()
+func NewDB(url string) *DB {
+	client, ctx := connectDB(url)
 	return &DB{client, ctx}
 }

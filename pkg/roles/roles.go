@@ -1,7 +1,6 @@
 package roles
 
 import (
-	"irg1008/next-go/pkg/config"
 	"irg1008/next-go/pkg/tokens"
 	"log/slog"
 
@@ -23,6 +22,6 @@ func GetUser(c echo.Context) *tokens.SignedUser {
 	return tokens.UnsignUser(token.(*jwt.Token))
 }
 
-var IsLogged = echojwt.WithConfig(echojwt.Config{
-	SigningKey: []byte(config.Env.JWTSecret),
-})
+func IsLoggedMiddleware(secret string) echo.MiddlewareFunc {
+	return echojwt.JWT([]byte(secret))
+}

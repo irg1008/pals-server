@@ -1,9 +1,9 @@
 package controllers
 
 import (
+	"irg1008/next-go/internal/server"
 	"irg1008/next-go/internal/services"
 	"irg1008/next-go/pkg/crypt"
-	"irg1008/next-go/pkg/db"
 	"irg1008/next-go/pkg/tokens"
 	"net/http"
 
@@ -11,11 +11,12 @@ import (
 )
 
 type AuthController struct {
+	signing *tokens.Signing
 	service *services.AuthService
 }
 
-func AuthRoutes(e *echo.Group, db *db.DB) {
-	u := &AuthController{&services.AuthService{DB: db}}
+func AuthRoutes(e *echo.Group, s *server.Server) {
+	u := &AuthController{s.Signing, &services.AuthService{DB: s.DB}}
 
 	g := e.Group("/auth")
 	g.POST("/signup", u.signUp)
@@ -70,7 +71,7 @@ func (u *AuthController) logIn(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Incorrect password")
 	}
 
-	token, err := tokens.SignUserToken(user)
+	token, err := u.signing.SignUserToken(user)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Something went wrong")
 	}

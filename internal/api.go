@@ -2,8 +2,7 @@ package internal
 
 import (
 	"irg1008/next-go/internal/controllers"
-	"irg1008/next-go/pkg/config"
-	"irg1008/next-go/pkg/db"
+	"irg1008/next-go/internal/server"
 	"irg1008/next-go/pkg/log"
 	"log/slog"
 	"time"
@@ -12,8 +11,8 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func getLoggerMiddleware() echo.MiddlewareFunc {
-	debug := config.Env.IsDev
+func getLoggerMiddleware(s *server.Server) echo.MiddlewareFunc {
+	debug := s.Config.IsDev
 	log.SetDefaultLogger(debug)
 
 	return middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
@@ -36,8 +35,8 @@ func getLoggerMiddleware() echo.MiddlewareFunc {
 	})
 }
 
-func applyAPIMiddlewares(e *echo.Group) {
-	e.Use(getLoggerMiddleware())
+func applyAPIMiddlewares(e *echo.Group, s *server.Server) {
+	e.Use(getLoggerMiddleware(s))
 	// TODO: Move rate limit to fast key-value store
 	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))
 	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
@@ -45,13 +44,13 @@ func applyAPIMiddlewares(e *echo.Group) {
 	}))
 }
 
-func APIRoute(e *echo.Echo, db *db.DB) *echo.Group {
+func APIRoutes(e *echo.Echo, s *server.Server) *echo.Group {
 	api := e.Group("/api")
-	applyAPIMiddlewares(api)
+	applyAPIMiddlewares(api, s)
 
 	// Controllers
-	controllers.AuthRoutes(api, db)
-	controllers.ProtectedRoutes(api)
+	controllers.AuthRoutes(api, s)
+	controllers.ProtectedRoutes(api, s)
 
 	return api
 }

@@ -18,9 +18,9 @@ func UnsignUser(t *jwt.Token) *SignedUser {
 	return user
 }
 
-func SignUserToken(user *ent.User) (string, error) {
+func (s *Signing) SignUserToken(user *ent.User) (string, error) {
 	claims := jwt.MapClaims{
 		"email": user.Email,
 	}
-	return SignWithClaims(claims)
+	return s.SignWithClaims(claims)
 }

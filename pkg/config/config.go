@@ -2,11 +2,17 @@ package config
 
 import (
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 )
 
-type config struct {
+const (
+	TokenDuration        = 15 * time.Minute
+	RefreshTokenDuration = 48 * time.Hour
+)
+
+type Config struct {
 	Env       string
 	Port      string
 	IsDev     bool
@@ -15,11 +21,11 @@ type config struct {
 	JWTSecret string
 }
 
-func LoadEnv() config {
+func NewConfig() *Config {
 	godotenv.Load()
 	env := os.Getenv("GO_ENV")
 
-	return config{
+	return &Config{
 		Env:       env,
 		Port:      ":" + os.Getenv("PORT"),
 		IsDev:     env == "development",
@@ -27,10 +33,4 @@ func LoadEnv() config {
 		DBUrl:     os.Getenv("DB_URL"),
 		JWTSecret: os.Getenv("JWT_SECRET"),
 	}
-}
-
-var Env config
-
-func init() {
-	Env = LoadEnv()
 }
