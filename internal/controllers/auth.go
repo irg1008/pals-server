@@ -1,9 +1,12 @@
 package controllers
 
 import (
-	"irg1008/next-go/internal/server"
+	"irg1008/next-go/ent"
 	"irg1008/next-go/internal/services"
+	"irg1008/next-go/pkg/cookies"
 	"irg1008/next-go/pkg/crypt"
+	"irg1008/next-go/pkg/helpers"
+	"irg1008/next-go/pkg/server"
 	"irg1008/next-go/pkg/tokens"
 	"net/http"
 
@@ -20,23 +23,19 @@ func AuthRoutes(e *echo.Group, s *server.Server) {
 
 	g := e.Group("/auth")
 	g.POST("/signup", u.signUp)
-	g.GET("/login", u.logIn)
+	g.POST("/login", u.logIn)
+	g.POST("/refresh", u.refresh)
 }
 
-type CreateUserRequest struct {
+type SignUpRequest struct {
 	Email           string `json:"email" validate:"required,email"`
 	Password        string `json:"password" validate:"required,min=5,max=100,password"`
 	ConfirmPassword string `json:"confirmPassword" validate:"required,eqfield=Password"`
 }
 
 func (u *AuthController) signUp(c echo.Context) error {
-	var data CreateUserRequest
-
-	if err := c.Bind(&data); err != nil {
-		return err
-	}
-
-	if err := c.Validate(data); err != nil {
+	data, err := helpers.BindAndValidate[SignUpRequest](c)
+	if err != nil {
 		return err
 	}
 
@@ -53,16 +52,12 @@ type LogInRequest struct {
 }
 
 func (u *AuthController) logIn(c echo.Context) error {
-	var data LogInRequest
-
-	if err := c.Bind(&data); err != nil {
-		return err
-	}
-	if err := c.Validate(data); err != nil {
+	data, err := helpers.BindAndValidate[LogInRequest](c)
+	if err != nil {
 		return err
 	}
 
-	user, err := u.service.GetUser(data.Email)
+	user, err := u.service.GetUserByEmail(data.Email)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "User not found")
 	}
@@ -71,10 +66,38 @@ func (u *AuthController) logIn(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Incorrect password")
 	}
 
-	token, err := u.signing.SignUserToken(user)
+	return u.renewOrSetTokens(c, user)
+}
+
+type RefreshPayload struct {
+	Token string `json:"accessToken"`
+}
+
+func (u *AuthController) refresh(c echo.Context) error {
+	refreshToken, err := cookies.GetRefreshTokenCookie(c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Something went wrong")
+		return echo.NewHTTPError(http.StatusUnauthorized, "Refresh token not found")
 	}
 
-	return c.String(http.StatusOK, token)
+	claims, err := u.signing.ParseRefreshToken(refreshToken)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err)
+	}
+
+	user, err := u.service.GetUserById(claims.Id)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, "User not found")
+	}
+
+	return u.renewOrSetTokens(c, user)
+}
+
+func (u *AuthController) renewOrSetTokens(c echo.Context, user *ent.User) error {
+	tokenPair, err := u.signing.CerateUserTokenPair(user)
+	if err != nil {
+		return echo.ErrInternalServerError
+	}
+
+	cookies.SetRefreshTokenCookie(c, tokenPair.RefreshToken)
+	return c.JSON(http.StatusOK, &RefreshPayload{tokenPair.Token})
 }

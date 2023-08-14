@@ -11,7 +11,7 @@ type AuthService struct {
 	DB *db.DB
 }
 
-func (u *AuthService) GetUser(email string) (*ent.User, error) {
+func (u *AuthService) GetUserByEmail(email string) (*ent.User, error) {
 	return u.DB.User.Query().Where(user.EmailEQ(email)).Only(u.DB.Ctx)
 }
 
@@ -23,4 +23,8 @@ func (u *AuthService) CreateUser(email string, password string) (*ent.User, erro
 	}
 
 	return u.DB.User.Create().SetEmail(email).SetPassword(hash).Save(u.DB.Ctx)
+}
+
+func (u *AuthService) GetUserById(id int) (*ent.User, error) {
+	return u.DB.User.Get(u.DB.Ctx, id)
 }

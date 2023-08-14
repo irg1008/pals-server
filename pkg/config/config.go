@@ -19,6 +19,7 @@ type Config struct {
 	DBName    string
 	DBUrl     string
 	JWTSecret string
+	ClientUrl string
 }
 
 func NewConfig() *Config {
@@ -32,5 +33,6 @@ func NewConfig() *Config {
 		DBName:    os.Getenv("DB_NAME"),
 		DBUrl:     os.Getenv("DB_URL"),
 		JWTSecret: os.Getenv("JWT_SECRET"),
+		ClientUrl: os.Getenv("CLIENT_URL"),
 	}
 }

@@ -23,17 +23,35 @@ type Server struct {
 	IsLogged echo.MiddlewareFunc
 }
 
-func (s *Server) Start(e *echo.Echo) (err error) {
-	defer s.DB.Close()
+func (s *Server) setMiddlewares(e *echo.Echo) {
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins:     []string{s.Config.ClientUrl},
+		AllowCredentials: true,
+	}))
+	e.Use(middleware.Recover())
+	e.Use(middleware.Secure())
+	// TODO: Implement CSRF
+	// e.Use(middleware.CSRF())
+}
 
-	port := s.Config.Port
+func startDevServer(e *echo.Echo, port string) (err error) {
+	return e.Start(port)
+}
 
-	if s.Config.IsDev {
-		return e.Start(port)
-	}
-
+func startProdServer(e *echo.Echo, port string) (err error) {
 	setUpTLS(e)
 	return e.StartAutoTLS(port)
+}
+
+func (s *Server) Start(e *echo.Echo) (err error) {
+	defer s.DB.Close()
+	s.setMiddlewares(e)
+
+	port := s.Config.Port
+	if s.Config.IsDev {
+		return startDevServer(e, port)
+	}
+	return startProdServer(e, port)
 }
 
 func NewServer() *Server {
