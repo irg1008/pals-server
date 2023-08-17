@@ -42,6 +42,11 @@ var isValidPassword = validator.Func(func(fl validator.FieldLevel) bool {
 
 func NewCustomValidator() *CustomValidator {
 	validator := validator.New()
-	validator.RegisterValidation("password", isValidPassword)
+	err := validator.RegisterValidation("password", isValidPassword)
+
+	if err != nil {
+		panic("Failed to register custom validator")
+	}
+
 	return &CustomValidator{validator}
 }

@@ -17,7 +17,6 @@ func newLogger(debug bool) *slog.Logger {
 		handler = tint.NewHandler(w, &tint.Options{
 			Level:      slog.LevelDebug,
 			TimeFormat: time.Kitchen,
-			NoColor:    debug == false,
 		})
 	} else {
 		handler = slog.NewJSONHandler(w, nil)
