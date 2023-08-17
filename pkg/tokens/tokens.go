@@ -13,7 +13,7 @@ type BaseClaims struct {
 }
 
 type Signing struct {
-	secret string
+	Secret string
 }
 
 func mixClaims(claims jwt.MapClaims, baseClaims jwt.MapClaims) jwt.MapClaims {
@@ -38,7 +38,7 @@ func (s *Signing) SignWithClaims(claims jwt.MapClaims, base BaseClaims) (string,
 	claims = mixWithBasicClaims(claims, base)
 	alg := SigningAlgorithm()
 	token := jwt.NewWithClaims(alg, claims)
-	return token.SignedString([]byte(s.secret))
+	return token.SignedString([]byte(s.Secret))
 }
 
 func (s *Signing) Sign(base BaseClaims) (string, error) {

@@ -12,16 +12,22 @@ const (
 	refreshTokenPath = "/api/auth/refresh"
 )
 
-func SetRefreshTokenCookie(c echo.Context, refreshToken string) {
-	c.SetCookie(&http.Cookie{
+func refreshCookie() *http.Cookie {
+	return &http.Cookie{
 		Name:     cookieName,
-		Value:    refreshToken,
+		Value:    "",
 		Path:     refreshTokenPath,
 		MaxAge:   int(config.RefreshTokenDuration.Seconds()),
 		Secure:   true,
 		HttpOnly: true,
 		SameSite: http.SameSiteStrictMode,
-	})
+	}
+}
+
+func SetRefreshTokenCookie(c echo.Context, refreshToken string) {
+	cookie := refreshCookie()
+	cookie.Value = refreshToken
+	c.SetCookie(cookie)
 }
 
 func GetRefreshTokenCookie(c echo.Context) (value string, err error) {
@@ -30,4 +36,10 @@ func GetRefreshTokenCookie(c echo.Context) (value string, err error) {
 		return
 	}
 	return cookie.Value, nil
+}
+
+func DeleteRefreshTokenCookie(c echo.Context) {
+	cookie := refreshCookie()
+	cookie.MaxAge = -1
+	c.SetCookie(cookie)
 }

@@ -68,12 +68,12 @@ func (s *Signing) CerateUserTokenPair(user *ent.User) (tokens TokenPair, err err
 	return TokenPair{token, refresh}, nil
 }
 
-func (s *Signing) ParseRefreshToken(token string) (*RefreshClaims, error) {
+func (s *Signing) ParseToken(token string) (*jwt.Token, error) {
 	t, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if validAlg := token.Method.Alg() == SigningAlgorithm().Alg(); !validAlg {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(s.secret), nil
+		return []byte(s.Secret), nil
 	})
 
 	if err != nil {
@@ -84,15 +84,40 @@ func (s *Signing) ParseRefreshToken(token string) (*RefreshClaims, error) {
 		return nil, fmt.Errorf("Invalid token")
 	}
 
-	claims := t.Claims.(jwt.MapClaims)
-	scope := claims["scope"].(string)
+	return t, nil
+}
 
-	if scope != refreshTokenScope {
-		return nil, fmt.Errorf("Invalid token scope, used scope: %v, expected scope: %v", scope, refreshTokenScope)
+func (s *Signing) ParseRefreshToken(token string) (*RefreshClaims, error) {
+	t, err := s.ParseToken(token)
+
+	if err != nil {
+		return nil, err
+	}
+
+	claims, err := matchesCorrectScope(t, refreshTokenScope)
+	if err != nil {
+		return nil, err
 	}
 
 	resfreshClaims := &RefreshClaims{
 		Id: int(claims["sub"].(float64)),
 	}
+
 	return resfreshClaims, nil
+}
+
+func (s *Signing) IsValidAccessToken(t *jwt.Token) error {
+	_, err := matchesCorrectScope(t, accessTokenScope)
+	return err
+}
+
+func matchesCorrectScope(t *jwt.Token, validScope string) (jwt.MapClaims, error) {
+	claims := t.Claims.(jwt.MapClaims)
+	scope := claims["scope"].(string)
+
+	if scope != validScope {
+		return nil, fmt.Errorf("Invalid token scope, used scope: %v, expected scope: %v", scope, validScope)
+	}
+
+	return claims, nil
 }

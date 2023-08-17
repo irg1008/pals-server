@@ -20,10 +20,16 @@ type Config struct {
 	DBUrl     string
 	JWTSecret string
 	ClientUrl string
+	ResendKey string
+	Domain    string
 }
 
 func NewConfig() *Config {
-	godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		panic("Failed to load env file")
+	}
+
 	env := os.Getenv("GO_ENV")
 
 	return &Config{
@@ -34,5 +40,7 @@ func NewConfig() *Config {
 		DBUrl:     os.Getenv("DB_URL"),
 		JWTSecret: os.Getenv("JWT_SECRET"),
 		ClientUrl: os.Getenv("CLIENT_URL"),
+		ResendKey: os.Getenv("RESEND_KEY"),
+		Domain:    os.Getenv("DOMAIN"),
 	}
 }

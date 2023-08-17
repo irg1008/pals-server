@@ -3,7 +3,7 @@ package auth
 import (
 	"irg1008/next-go/internal/services"
 	"irg1008/next-go/pkg/client"
-	"irg1008/next-go/pkg/mail"
+	"irg1008/next-go/pkg/mailer"
 	"irg1008/next-go/pkg/server"
 	"irg1008/next-go/pkg/tokens"
 
@@ -14,11 +14,11 @@ type AuthController struct {
 	client     *client.Client
 	service    *services.AuthService
 	signing    *tokens.Signing
-	mailSender *mail.Sender
+	mailSender *mailer.Sender
 }
 
 func Routes(e *echo.Group, s *server.Server) {
-	mailSender := s.Mail.NewSender("Pals", "no-reply")
+	mailSender := s.Mailer.NewSender("Pals", "no-reply")
 
 	u := &AuthController{
 		service:    &services.AuthService{DB: s.DB},

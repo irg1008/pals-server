@@ -1,8 +1,10 @@
 package server
 
 import (
+	"irg1008/next-go/pkg/client"
 	"irg1008/next-go/pkg/config"
 	"irg1008/next-go/pkg/db"
+	"irg1008/next-go/pkg/mailer"
 	"irg1008/next-go/pkg/roles"
 	"irg1008/next-go/pkg/tls"
 	"irg1008/next-go/pkg/tokens"
@@ -17,10 +19,12 @@ func setUpTLS(e *echo.Echo) {
 }
 
 type Server struct {
-	Config   *config.Config
-	DB       *db.DB
-	Signing  *tokens.Signing
-	IsLogged echo.MiddlewareFunc
+	Config  *config.Config
+	DB      *db.DB
+	Signing *tokens.Signing
+	Roles   *roles.Roles
+	Mailer  *mailer.Mailer
+	Client  *client.Client
 }
 
 func (s *Server) setMiddlewares(e *echo.Echo) {
@@ -57,7 +61,12 @@ func (s *Server) Start(e *echo.Echo) (err error) {
 func NewServer() *Server {
 	config := config.NewConfig()
 	signing := tokens.NewSigning(config.JWTSecret)
-	db := db.NewDB(config.DBUrl)
-	isLogged := roles.IsLoggedMiddleware(config.JWTSecret)
-	return &Server{config, db, signing, isLogged}
+	return &Server{
+		Config:  config,
+		Client:  client.NewClient(config.ClientUrl),
+		DB:      db.NewDB(config.DBUrl),
+		Signing: signing,
+		Roles:   roles.NewRoles(signing),
+		Mailer:  mailer.NewMailer(config.Domain, config.ResendKey),
+	}
 }

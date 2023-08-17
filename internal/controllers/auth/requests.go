@@ -17,13 +17,13 @@ func (u *AuthController) CreateNewConfirmEmailRequest(c echo.Context) error {
 		return err
 	}
 
-	user, err := u.service.GetUserByEmail(data.Email)
+	user, err := u.userExistForEmail(data.Email)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, "User not found")
+		return err
 	}
 
-	if user.IsConfirmed {
-		return echo.NewHTTPError(http.StatusConflict, "User already confirmed")
+	if err := isNotConfirmed(user); err != nil {
+		return err
 	}
 
 	if err := u.sendConfirmEmail(data.Email); err != nil {
@@ -41,10 +41,8 @@ func (u *AuthController) sendConfirmEmail(email string) error {
 	}
 
 	url := u.client.ConfirmEmailURL(req.Token.String())
-	err = u.mailSender.SendConfirmEmail(email, "Confirm email", url)
-
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Error while sending email")
+	if err := u.mailSender.SendConfirmEmail(email, "Confirm email", url); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Error while sending confirmation email")
 	}
 
 	return nil
@@ -74,13 +72,13 @@ func (u *AuthController) CreateNewResetRequest(c echo.Context) error {
 		return err
 	}
 
-	user, err := u.service.GetUserByEmail(data.Email)
+	user, err := u.userExistForEmail(data.Email)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, "User not found")
+		return err
 	}
 
-	if !user.IsConfirmed {
-		return echo.NewHTTPError(http.StatusConflict, "Confirm your email before attempting a password reset")
+	if err := isConfirmed(user); err != nil {
+		return err
 	}
 
 	if err := u.createAndSendResetEmail(data.Email); err != nil {
@@ -98,10 +96,8 @@ func (u *AuthController) createAndSendResetEmail(email string) error {
 	}
 
 	url := u.client.ResetPasswordURL(req.Token.String())
-	err = u.mailSender.SendResetPassword(email, "Reset password", url)
-
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Error while sending email")
+	if err := u.mailSender.SendResetPassword(email, "Reset password", url); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Error while sending reset email")
 	}
 
 	return nil
