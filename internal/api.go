@@ -1,7 +1,8 @@
 package internal
 
 import (
-	"irg1008/next-go/internal/controllers"
+	"irg1008/next-go/internal/controllers/auth"
+	"irg1008/next-go/internal/controllers/protected"
 	"irg1008/next-go/pkg/log"
 	"irg1008/next-go/pkg/server"
 	"time"
@@ -24,8 +25,8 @@ func APIRoutes(e *echo.Echo, s *server.Server) *echo.Group {
 	setAPIMiddlewares(api, s)
 
 	// Controllers
-	controllers.AuthRoutes(api, s)
-	controllers.ProtectedRoutes(api, s)
+	auth.Routes(api, s)
+	protected.Routes(api, s)
 
 	return api
 }
