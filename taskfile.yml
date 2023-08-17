@@ -7,8 +7,24 @@ tasks:
 
   run:
     cmds:
-      - wgo run cmd/server/main.go
+      - go run cmd/server/main.go
 
-  db:gen:
+  dev:
+    cmds:
+      - wgo task run
+
+  db:
     cmds:
       - go generate ./ent
+
+  lint:
+    cmds:
+      - golangci-lint run
+
+  format:
+    cmds:
+      - gofmt -w -s .
+
+  other:
+    cmds:
+      - go run cmd/other/main.go
