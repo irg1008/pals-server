@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // ID filters vertices based on their ID field.
@@ -62,6 +63,11 @@ func Email(v string) predicate.User {
 // Password applies equality check predicate on the "password" field. It's identical to PasswordEQ.
 func Password(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldPassword, v))
+}
+
+// IsConfirmed applies equality check predicate on the "is_confirmed" field. It's identical to IsConfirmedEQ.
+func IsConfirmed(v bool) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldIsConfirmed, v))
 }
 
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
@@ -199,6 +205,16 @@ func PasswordContainsFold(v string) predicate.User {
 	return predicate.User(sql.FieldContainsFold(FieldPassword, v))
 }
 
+// IsConfirmedEQ applies the EQ predicate on the "is_confirmed" field.
+func IsConfirmedEQ(v bool) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldIsConfirmed, v))
+}
+
+// IsConfirmedNEQ applies the NEQ predicate on the "is_confirmed" field.
+func IsConfirmedNEQ(v bool) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldIsConfirmed, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldCreatedAt, v))
@@ -237,6 +253,29 @@ func CreatedAtLT(v time.Time) predicate.User {
 // CreatedAtLTE applies the LTE predicate on the "created_at" field.
 func CreatedAtLTE(v time.Time) predicate.User {
 	return predicate.User(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// HasRequests applies the HasEdge predicate on the "requests" edge.
+func HasRequests() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, RequestsTable, RequestsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasRequestsWith applies the HasEdge predicate on the "requests" edge with a given conditions (other predicates).
+func HasRequestsWith(preds ...predicate.AuthRequest) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newRequestsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

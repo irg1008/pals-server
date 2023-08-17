@@ -8,6 +8,18 @@ import (
 	"irg1008/next-go/ent"
 )
 
+// The AuthRequestFunc type is an adapter to allow the use of ordinary
+// function as AuthRequest mutator.
+type AuthRequestFunc func(context.Context, *ent.AuthRequestMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AuthRequestFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.AuthRequestMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AuthRequestMutation", m)
+}
+
 // The UserFunc type is an adapter to allow the use of ordinary
 // function as User mutator.
 type UserFunc func(context.Context, *ent.UserMutation) (ent.Value, error)

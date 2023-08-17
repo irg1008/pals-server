@@ -3,19 +3,36 @@
 package ent
 
 import (
+	"irg1008/next-go/ent/authrequest"
 	"irg1008/next-go/ent/schema"
 	"irg1008/next-go/ent/user"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // The init function reads all schema descriptors with runtime code
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	authrequestFields := schema.AuthRequest{}.Fields()
+	_ = authrequestFields
+	// authrequestDescToken is the schema descriptor for token field.
+	authrequestDescToken := authrequestFields[2].Descriptor()
+	// authrequest.DefaultToken holds the default value on creation for the token field.
+	authrequest.DefaultToken = authrequestDescToken.Default.(func() uuid.UUID)
+	// authrequestDescCreatedAt is the schema descriptor for created_at field.
+	authrequestDescCreatedAt := authrequestFields[4].Descriptor()
+	// authrequest.DefaultCreatedAt holds the default value on creation for the created_at field.
+	authrequest.DefaultCreatedAt = authrequestDescCreatedAt.Default.(func() time.Time)
 	userFields := schema.User{}.Fields()
 	_ = userFields
+	// userDescIsConfirmed is the schema descriptor for is_confirmed field.
+	userDescIsConfirmed := userFields[2].Descriptor()
+	// user.DefaultIsConfirmed holds the default value on creation for the is_confirmed field.
+	user.DefaultIsConfirmed = userDescIsConfirmed.Default.(bool)
 	// userDescCreatedAt is the schema descriptor for created_at field.
-	userDescCreatedAt := userFields[2].Descriptor()
+	userDescCreatedAt := userFields[3].Descriptor()
 	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
 	user.DefaultCreatedAt = userDescCreatedAt.Default.(func() time.Time)
 }

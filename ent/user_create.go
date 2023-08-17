@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"irg1008/next-go/ent/authrequest"
 	"irg1008/next-go/ent/user"
 	"time"
 
@@ -32,6 +33,20 @@ func (uc *UserCreate) SetPassword(s string) *UserCreate {
 	return uc
 }
 
+// SetIsConfirmed sets the "is_confirmed" field.
+func (uc *UserCreate) SetIsConfirmed(b bool) *UserCreate {
+	uc.mutation.SetIsConfirmed(b)
+	return uc
+}
+
+// SetNillableIsConfirmed sets the "is_confirmed" field if the given value is not nil.
+func (uc *UserCreate) SetNillableIsConfirmed(b *bool) *UserCreate {
+	if b != nil {
+		uc.SetIsConfirmed(*b)
+	}
+	return uc
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (uc *UserCreate) SetCreatedAt(t time.Time) *UserCreate {
 	uc.mutation.SetCreatedAt(t)
@@ -44,6 +59,21 @@ func (uc *UserCreate) SetNillableCreatedAt(t *time.Time) *UserCreate {
 		uc.SetCreatedAt(*t)
 	}
 	return uc
+}
+
+// AddRequestIDs adds the "requests" edge to the AuthRequest entity by IDs.
+func (uc *UserCreate) AddRequestIDs(ids ...int) *UserCreate {
+	uc.mutation.AddRequestIDs(ids...)
+	return uc
+}
+
+// AddRequests adds the "requests" edges to the AuthRequest entity.
+func (uc *UserCreate) AddRequests(a ...*AuthRequest) *UserCreate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return uc.AddRequestIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -81,6 +111,10 @@ func (uc *UserCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (uc *UserCreate) defaults() {
+	if _, ok := uc.mutation.IsConfirmed(); !ok {
+		v := user.DefaultIsConfirmed
+		uc.mutation.SetIsConfirmed(v)
+	}
 	if _, ok := uc.mutation.CreatedAt(); !ok {
 		v := user.DefaultCreatedAt()
 		uc.mutation.SetCreatedAt(v)
@@ -94,6 +128,9 @@ func (uc *UserCreate) check() error {
 	}
 	if _, ok := uc.mutation.Password(); !ok {
 		return &ValidationError{Name: "password", err: errors.New(`ent: missing required field "User.password"`)}
+	}
+	if _, ok := uc.mutation.IsConfirmed(); !ok {
+		return &ValidationError{Name: "is_confirmed", err: errors.New(`ent: missing required field "User.is_confirmed"`)}
 	}
 	if _, ok := uc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "User.created_at"`)}
@@ -132,9 +169,29 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_spec.SetField(user.FieldPassword, field.TypeString, value)
 		_node.Password = value
 	}
+	if value, ok := uc.mutation.IsConfirmed(); ok {
+		_spec.SetField(user.FieldIsConfirmed, field.TypeBool, value)
+		_node.IsConfirmed = value
+	}
 	if value, ok := uc.mutation.CreatedAt(); ok {
 		_spec.SetField(user.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
+	}
+	if nodes := uc.mutation.RequestsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RequestsTable,
+			Columns: []string{user.RequestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authrequest.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

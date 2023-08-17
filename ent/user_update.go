@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"irg1008/next-go/ent/authrequest"
 	"irg1008/next-go/ent/predicate"
 	"irg1008/next-go/ent/user"
 
@@ -39,9 +40,59 @@ func (uu *UserUpdate) SetPassword(s string) *UserUpdate {
 	return uu
 }
 
+// SetIsConfirmed sets the "is_confirmed" field.
+func (uu *UserUpdate) SetIsConfirmed(b bool) *UserUpdate {
+	uu.mutation.SetIsConfirmed(b)
+	return uu
+}
+
+// SetNillableIsConfirmed sets the "is_confirmed" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableIsConfirmed(b *bool) *UserUpdate {
+	if b != nil {
+		uu.SetIsConfirmed(*b)
+	}
+	return uu
+}
+
+// AddRequestIDs adds the "requests" edge to the AuthRequest entity by IDs.
+func (uu *UserUpdate) AddRequestIDs(ids ...int) *UserUpdate {
+	uu.mutation.AddRequestIDs(ids...)
+	return uu
+}
+
+// AddRequests adds the "requests" edges to the AuthRequest entity.
+func (uu *UserUpdate) AddRequests(a ...*AuthRequest) *UserUpdate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return uu.AddRequestIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
+}
+
+// ClearRequests clears all "requests" edges to the AuthRequest entity.
+func (uu *UserUpdate) ClearRequests() *UserUpdate {
+	uu.mutation.ClearRequests()
+	return uu
+}
+
+// RemoveRequestIDs removes the "requests" edge to AuthRequest entities by IDs.
+func (uu *UserUpdate) RemoveRequestIDs(ids ...int) *UserUpdate {
+	uu.mutation.RemoveRequestIDs(ids...)
+	return uu
+}
+
+// RemoveRequests removes "requests" edges to AuthRequest entities.
+func (uu *UserUpdate) RemoveRequests(a ...*AuthRequest) *UserUpdate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return uu.RemoveRequestIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -86,6 +137,54 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := uu.mutation.Password(); ok {
 		_spec.SetField(user.FieldPassword, field.TypeString, value)
 	}
+	if value, ok := uu.mutation.IsConfirmed(); ok {
+		_spec.SetField(user.FieldIsConfirmed, field.TypeBool, value)
+	}
+	if uu.mutation.RequestsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RequestsTable,
+			Columns: []string{user.RequestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authrequest.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedRequestsIDs(); len(nodes) > 0 && !uu.mutation.RequestsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RequestsTable,
+			Columns: []string{user.RequestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authrequest.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RequestsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RequestsTable,
+			Columns: []string{user.RequestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authrequest.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{user.Label}
@@ -118,9 +217,59 @@ func (uuo *UserUpdateOne) SetPassword(s string) *UserUpdateOne {
 	return uuo
 }
 
+// SetIsConfirmed sets the "is_confirmed" field.
+func (uuo *UserUpdateOne) SetIsConfirmed(b bool) *UserUpdateOne {
+	uuo.mutation.SetIsConfirmed(b)
+	return uuo
+}
+
+// SetNillableIsConfirmed sets the "is_confirmed" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableIsConfirmed(b *bool) *UserUpdateOne {
+	if b != nil {
+		uuo.SetIsConfirmed(*b)
+	}
+	return uuo
+}
+
+// AddRequestIDs adds the "requests" edge to the AuthRequest entity by IDs.
+func (uuo *UserUpdateOne) AddRequestIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.AddRequestIDs(ids...)
+	return uuo
+}
+
+// AddRequests adds the "requests" edges to the AuthRequest entity.
+func (uuo *UserUpdateOne) AddRequests(a ...*AuthRequest) *UserUpdateOne {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return uuo.AddRequestIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
+}
+
+// ClearRequests clears all "requests" edges to the AuthRequest entity.
+func (uuo *UserUpdateOne) ClearRequests() *UserUpdateOne {
+	uuo.mutation.ClearRequests()
+	return uuo
+}
+
+// RemoveRequestIDs removes the "requests" edge to AuthRequest entities by IDs.
+func (uuo *UserUpdateOne) RemoveRequestIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.RemoveRequestIDs(ids...)
+	return uuo
+}
+
+// RemoveRequests removes "requests" edges to AuthRequest entities.
+func (uuo *UserUpdateOne) RemoveRequests(a ...*AuthRequest) *UserUpdateOne {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return uuo.RemoveRequestIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -194,6 +343,54 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	}
 	if value, ok := uuo.mutation.Password(); ok {
 		_spec.SetField(user.FieldPassword, field.TypeString, value)
+	}
+	if value, ok := uuo.mutation.IsConfirmed(); ok {
+		_spec.SetField(user.FieldIsConfirmed, field.TypeBool, value)
+	}
+	if uuo.mutation.RequestsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RequestsTable,
+			Columns: []string{user.RequestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authrequest.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedRequestsIDs(); len(nodes) > 0 && !uuo.mutation.RequestsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RequestsTable,
+			Columns: []string{user.RequestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authrequest.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RequestsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.RequestsTable,
+			Columns: []string{user.RequestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(authrequest.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &User{config: uuo.config}
 	_spec.Assign = _node.assignValues

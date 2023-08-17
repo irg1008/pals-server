@@ -21,9 +21,32 @@ type User struct {
 	Email string `json:"email,omitempty"`
 	// Password holds the value of the "password" field.
 	Password string `json:"-"`
+	// IsConfirmed holds the value of the "is_confirmed" field.
+	IsConfirmed bool `json:"-"`
 	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt    time.Time `json:"-"`
+	CreatedAt time.Time `json:"-"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the UserQuery when eager-loading is set.
+	Edges        UserEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// UserEdges holds the relations/edges for other nodes in the graph.
+type UserEdges struct {
+	// Requests holds the value of the requests edge.
+	Requests []*AuthRequest `json:"requests,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// RequestsOrErr returns the Requests value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) RequestsOrErr() ([]*AuthRequest, error) {
+	if e.loadedTypes[0] {
+		return e.Requests, nil
+	}
+	return nil, &NotLoadedError{edge: "requests"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -31,6 +54,8 @@ func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case user.FieldIsConfirmed:
+			values[i] = new(sql.NullBool)
 		case user.FieldID:
 			values[i] = new(sql.NullInt64)
 		case user.FieldEmail, user.FieldPassword:
@@ -70,6 +95,12 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				u.Password = value.String
 			}
+		case user.FieldIsConfirmed:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_confirmed", values[i])
+			} else if value.Valid {
+				u.IsConfirmed = value.Bool
+			}
 		case user.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -87,6 +118,11 @@ func (u *User) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (u *User) Value(name string) (ent.Value, error) {
 	return u.selectValues.Get(name)
+}
+
+// QueryRequests queries the "requests" edge of the User entity.
+func (u *User) QueryRequests() *AuthRequestQuery {
+	return NewUserClient(u.config).QueryRequests(u)
 }
 
 // Update returns a builder for updating this User.
@@ -116,6 +152,9 @@ func (u *User) String() string {
 	builder.WriteString(u.Email)
 	builder.WriteString(", ")
 	builder.WriteString("password=<sensitive>")
+	builder.WriteString(", ")
+	builder.WriteString("is_confirmed=")
+	builder.WriteString(fmt.Sprintf("%v", u.IsConfirmed))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(u.CreatedAt.Format(time.ANSIC))

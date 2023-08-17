@@ -10,11 +10,13 @@ import (
 
 	"irg1008/next-go/ent/migrate"
 
+	"irg1008/next-go/ent/authrequest"
 	"irg1008/next-go/ent/user"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // Client is the client that holds all ent builders.
@@ -22,6 +24,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// AuthRequest is the client for interacting with the AuthRequest builders.
+	AuthRequest *AuthRequestClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 }
@@ -37,6 +41,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.AuthRequest = NewAuthRequestClient(c.config)
 	c.User = NewUserClient(c.config)
 }
 
@@ -118,9 +123,10 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		User:   NewUserClient(cfg),
+		ctx:         ctx,
+		config:      cfg,
+		AuthRequest: NewAuthRequestClient(cfg),
+		User:        NewUserClient(cfg),
 	}, nil
 }
 
@@ -138,16 +144,17 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		User:   NewUserClient(cfg),
+		ctx:         ctx,
+		config:      cfg,
+		AuthRequest: NewAuthRequestClient(cfg),
+		User:        NewUserClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		User.
+//		AuthRequest.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -169,22 +176,160 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
+	c.AuthRequest.Use(hooks...)
 	c.User.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
+	c.AuthRequest.Intercept(interceptors...)
 	c.User.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
+	case *AuthRequestMutation:
+		return c.AuthRequest.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
+	}
+}
+
+// AuthRequestClient is a client for the AuthRequest schema.
+type AuthRequestClient struct {
+	config
+}
+
+// NewAuthRequestClient returns a client for the AuthRequest from the given config.
+func NewAuthRequestClient(c config) *AuthRequestClient {
+	return &AuthRequestClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `authrequest.Hooks(f(g(h())))`.
+func (c *AuthRequestClient) Use(hooks ...Hook) {
+	c.hooks.AuthRequest = append(c.hooks.AuthRequest, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `authrequest.Intercept(f(g(h())))`.
+func (c *AuthRequestClient) Intercept(interceptors ...Interceptor) {
+	c.inters.AuthRequest = append(c.inters.AuthRequest, interceptors...)
+}
+
+// Create returns a builder for creating a AuthRequest entity.
+func (c *AuthRequestClient) Create() *AuthRequestCreate {
+	mutation := newAuthRequestMutation(c.config, OpCreate)
+	return &AuthRequestCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of AuthRequest entities.
+func (c *AuthRequestClient) CreateBulk(builders ...*AuthRequestCreate) *AuthRequestCreateBulk {
+	return &AuthRequestCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for AuthRequest.
+func (c *AuthRequestClient) Update() *AuthRequestUpdate {
+	mutation := newAuthRequestMutation(c.config, OpUpdate)
+	return &AuthRequestUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *AuthRequestClient) UpdateOne(ar *AuthRequest) *AuthRequestUpdateOne {
+	mutation := newAuthRequestMutation(c.config, OpUpdateOne, withAuthRequest(ar))
+	return &AuthRequestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *AuthRequestClient) UpdateOneID(id int) *AuthRequestUpdateOne {
+	mutation := newAuthRequestMutation(c.config, OpUpdateOne, withAuthRequestID(id))
+	return &AuthRequestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for AuthRequest.
+func (c *AuthRequestClient) Delete() *AuthRequestDelete {
+	mutation := newAuthRequestMutation(c.config, OpDelete)
+	return &AuthRequestDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *AuthRequestClient) DeleteOne(ar *AuthRequest) *AuthRequestDeleteOne {
+	return c.DeleteOneID(ar.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *AuthRequestClient) DeleteOneID(id int) *AuthRequestDeleteOne {
+	builder := c.Delete().Where(authrequest.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &AuthRequestDeleteOne{builder}
+}
+
+// Query returns a query builder for AuthRequest.
+func (c *AuthRequestClient) Query() *AuthRequestQuery {
+	return &AuthRequestQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeAuthRequest},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a AuthRequest entity by its id.
+func (c *AuthRequestClient) Get(ctx context.Context, id int) (*AuthRequest, error) {
+	return c.Query().Where(authrequest.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *AuthRequestClient) GetX(ctx context.Context, id int) *AuthRequest {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUser queries the user edge of a AuthRequest.
+func (c *AuthRequestClient) QueryUser(ar *AuthRequest) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ar.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(authrequest.Table, authrequest.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, authrequest.UserTable, authrequest.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(ar.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *AuthRequestClient) Hooks() []Hook {
+	return c.hooks.AuthRequest
+}
+
+// Interceptors returns the client interceptors.
+func (c *AuthRequestClient) Interceptors() []Interceptor {
+	return c.inters.AuthRequest
+}
+
+func (c *AuthRequestClient) mutate(ctx context.Context, m *AuthRequestMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&AuthRequestCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&AuthRequestUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&AuthRequestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&AuthRequestDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown AuthRequest mutation op: %q", m.Op())
 	}
 }
 
@@ -281,6 +426,22 @@ func (c *UserClient) GetX(ctx context.Context, id int) *User {
 	return obj
 }
 
+// QueryRequests queries the requests edge of a User.
+func (c *UserClient) QueryRequests(u *User) *AuthRequestQuery {
+	query := (&AuthRequestClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(authrequest.Table, authrequest.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.RequestsTable, user.RequestsColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
 	return c.hooks.User
@@ -309,9 +470,9 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		User []ent.Hook
+		AuthRequest, User []ent.Hook
 	}
 	inters struct {
-		User []ent.Interceptor
+		AuthRequest, User []ent.Interceptor
 	}
 )

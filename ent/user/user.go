@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -17,10 +18,21 @@ const (
 	FieldEmail = "email"
 	// FieldPassword holds the string denoting the password field in the database.
 	FieldPassword = "password"
+	// FieldIsConfirmed holds the string denoting the is_confirmed field in the database.
+	FieldIsConfirmed = "is_confirmed"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
+	// EdgeRequests holds the string denoting the requests edge name in mutations.
+	EdgeRequests = "requests"
 	// Table holds the table name of the user in the database.
 	Table = "users"
+	// RequestsTable is the table that holds the requests relation/edge.
+	RequestsTable = "auth_requests"
+	// RequestsInverseTable is the table name for the AuthRequest entity.
+	// It exists in this package in order to avoid circular dependency with the "authrequest" package.
+	RequestsInverseTable = "auth_requests"
+	// RequestsColumn is the table column denoting the requests relation/edge.
+	RequestsColumn = "user_requests"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -28,6 +40,7 @@ var Columns = []string{
 	FieldID,
 	FieldEmail,
 	FieldPassword,
+	FieldIsConfirmed,
 	FieldCreatedAt,
 }
 
@@ -42,6 +55,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// DefaultIsConfirmed holds the default value on creation for the "is_confirmed" field.
+	DefaultIsConfirmed bool
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 )
@@ -64,7 +79,33 @@ func ByPassword(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPassword, opts...).ToFunc()
 }
 
+// ByIsConfirmed orders the results by the is_confirmed field.
+func ByIsConfirmed(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsConfirmed, opts...).ToFunc()
+}
+
 // ByCreatedAt orders the results by the created_at field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByRequestsCount orders the results by requests count.
+func ByRequestsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newRequestsStep(), opts...)
+	}
+}
+
+// ByRequests orders the results by requests terms.
+func ByRequests(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRequestsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newRequestsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RequestsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, RequestsTable, RequestsColumn),
+	)
 }
