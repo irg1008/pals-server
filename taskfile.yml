@@ -11,7 +11,7 @@ tasks:
 
   dev:
     cmds:
-      - wgo task run
+      - wgo -file .go task run
 
   db:
     cmds:
@@ -24,6 +24,11 @@ tasks:
   format:
     cmds:
       - gofmt -w -s .
+
+  test:
+    cmds:
+      #  TODO
+      - go test -v ./...
 
   other:
     cmds:

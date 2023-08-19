@@ -119,8 +119,9 @@ func (s *AuthService) confirmRequest(
 		return nil, errors.New("request is expired")
 	}
 
+	user := req.Edges.User
 	if opts.deleteAll {
-		err = s.deleteRequests(req.Edges.User.ID, requestType)
+		err = s.deleteRequests(user.ID, requestType)
 	} else {
 		err = req.Update().SetActive(false).Exec(s.DB.Ctx)
 	}
@@ -129,7 +130,7 @@ func (s *AuthService) confirmRequest(
 		return nil, err
 	}
 
-	return req.Edges.User, nil
+	return user, nil
 }
 
 func (s *AuthService) CreateConfirmationRequest(email string) (*ent.AuthRequest, error) {

@@ -4,7 +4,7 @@ import (
 	"irg1008/next-go/ent"
 	"irg1008/next-go/pkg/cookies"
 	"irg1008/next-go/pkg/crypt"
-	"irg1008/next-go/pkg/helpers"
+	"irg1008/next-go/pkg/request"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -21,7 +21,7 @@ type SignUpRequest struct {
 }
 
 func (u *AuthController) SignUp(c echo.Context) error {
-	data, err := helpers.BindAndValidate[SignUpRequest](c)
+	data, err := request.BindAndValidate[SignUpRequest](c)
 	if err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ type LogInRequest struct {
 }
 
 func (u *AuthController) LogIn(c echo.Context) error {
-	data, err := helpers.BindAndValidate[LogInRequest](c)
+	data, err := request.BindAndValidate[LogInRequest](c)
 	if err != nil {
 		return err
 	}
@@ -53,12 +53,12 @@ func (u *AuthController) LogIn(c echo.Context) error {
 		return err
 	}
 
-	if err := isNotConfirmed(user); err != nil {
-		return err
+	if pwdMatch := crypt.CompareHashAndPwd(user.Password, data.Password); !pwdMatch {
+		return echo.NewHTTPError(http.StatusBadRequest, "Incorrect password")
 	}
 
-	if pwdMatch := crypt.CompareHashAndPwd(user.Password, data.Password); !pwdMatch {
-		return echo.NewHTTPError(http.StatusUnauthorized, "Incorrect password")
+	if err := isNotConfirmed(user); err != nil {
+		return err
 	}
 
 	return u.renewOrSetTokens(c, user)
@@ -80,6 +80,9 @@ func (u *AuthController) Refresh(c echo.Context) error {
 	}
 
 	user, err := u.userExists(claims.Id)
+	if err != nil {
+		return err
+	}
 
 	return u.renewOrSetTokens(c, user)
 }

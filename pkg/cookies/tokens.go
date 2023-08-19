@@ -10,13 +10,14 @@ import (
 const (
 	cookieName       = "refresh_token"
 	refreshTokenPath = "/api/auth/refresh"
+	loggedCookieName = "is_logged"
+	loggedCookiePath = "/"
 )
 
-func refreshCookie() *http.Cookie {
+func newCookie(name string, path string) *http.Cookie {
 	return &http.Cookie{
-		Name:     cookieName,
-		Value:    "",
-		Path:     refreshTokenPath,
+		Name:     name,
+		Path:     path,
 		MaxAge:   int(config.RefreshTokenDuration.Seconds()),
 		Secure:   true,
 		HttpOnly: true,
@@ -24,10 +25,34 @@ func refreshCookie() *http.Cookie {
 	}
 }
 
+func deleteCookie(c echo.Context, cookie *http.Cookie) {
+	cookie.MaxAge = -1
+	c.SetCookie(cookie)
+}
+
+func loggedCookie() *http.Cookie {
+	return newCookie(loggedCookieName, loggedCookiePath)
+}
+
+func refreshCookie() *http.Cookie {
+	return newCookie(cookieName, refreshTokenPath)
+}
+
 func SetRefreshTokenCookie(c echo.Context, refreshToken string) {
 	cookie := refreshCookie()
 	cookie.Value = refreshToken
 	c.SetCookie(cookie)
+
+	loggedCookie := loggedCookie()
+	loggedCookie.Value = "true"
+	c.SetCookie(loggedCookie)
+}
+
+func DeleteRefreshTokenCookie(c echo.Context) {
+	cookie := refreshCookie()
+	deleteCookie(c, cookie)
+	loggedCookie := loggedCookie()
+	deleteCookie(c, loggedCookie)
 }
 
 func GetRefreshTokenCookie(c echo.Context) (value string, err error) {
@@ -36,10 +61,4 @@ func GetRefreshTokenCookie(c echo.Context) (value string, err error) {
 		return
 	}
 	return cookie.Value, nil
-}
-
-func DeleteRefreshTokenCookie(c echo.Context) {
-	cookie := refreshCookie()
-	cookie.MaxAge = -1
-	c.SetCookie(cookie)
 }

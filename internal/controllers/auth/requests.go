@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"irg1008/next-go/pkg/helpers"
+	"irg1008/next-go/pkg/request"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -12,7 +12,7 @@ type NewRequestData struct {
 }
 
 func (u *AuthController) CreateNewConfirmEmailRequest(c echo.Context) error {
-	data, err := helpers.BindAndValidate[NewRequestData](c)
+	data, err := request.BindAndValidate[NewRequestData](c)
 	if err != nil {
 		return err
 	}
@@ -22,7 +22,7 @@ func (u *AuthController) CreateNewConfirmEmailRequest(c echo.Context) error {
 		return err
 	}
 
-	if err := isNotConfirmed(user); err != nil {
+	if err := isConfirmed(user); err != nil {
 		return err
 	}
 
@@ -53,7 +53,7 @@ type ConfirmEmailRequets struct {
 }
 
 func (u *AuthController) ConfirmEmail(c echo.Context) error {
-	data, err := helpers.BindAndValidate[ConfirmEmailRequets](c)
+	data, err := request.BindAndValidate[ConfirmEmailRequets](c)
 	if err != nil {
 		return err
 	}
@@ -67,7 +67,7 @@ func (u *AuthController) ConfirmEmail(c echo.Context) error {
 }
 
 func (u *AuthController) CreateNewResetRequest(c echo.Context) error {
-	data, err := helpers.BindAndValidate[NewRequestData](c)
+	data, err := request.BindAndValidate[NewRequestData](c)
 	if err != nil {
 		return err
 	}
@@ -77,7 +77,7 @@ func (u *AuthController) CreateNewResetRequest(c echo.Context) error {
 		return err
 	}
 
-	if err := isConfirmed(user); err != nil {
+	if err := isNotConfirmed(user); err != nil {
 		return err
 	}
 
@@ -109,7 +109,7 @@ type ResetPasswordRequest struct {
 }
 
 func (u *AuthController) ResetPassword(c echo.Context) error {
-	data, err := helpers.BindAndValidate[ResetPasswordRequest](c)
+	data, err := request.BindAndValidate[ResetPasswordRequest](c)
 	if err != nil {
 		return err
 	}

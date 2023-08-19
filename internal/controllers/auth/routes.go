@@ -28,12 +28,13 @@ func Routes(e *echo.Group, s *server.Server) {
 	}
 
 	g := e.Group("/auth")
+
 	g.POST("/signup", u.SignUp)
 	g.POST("/login", u.LogIn)
 	g.GET("/logout", u.LogOut)
 	g.GET("/refresh", u.Refresh)
-	g.GET("/request/confirm-user", u.CreateNewConfirmEmailRequest)
+	g.GET("/request/confirm-email", u.CreateNewConfirmEmailRequest)
 	g.GET("/request/reset-password", u.CreateNewResetRequest)
-	g.POST("/confirm-user", u.ConfirmEmail)
+	g.POST("/confirm-email", u.ConfirmEmail)
 	g.POST("/reset-password", u.ResetPassword)
 }
