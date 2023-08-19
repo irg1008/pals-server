@@ -30,6 +30,14 @@ tasks:
       #  TODO
       - go test -v ./...
 
+  build:
+    cmds:
+      - go build -o bin/server cmd/server/main.go
+
+  build:win:
+    cmds:
+      - GOOS=windows GOARCH=amd64 go build -o bin/server.exe cmd/server/main.go
+
   other:
     cmds:
       - go run cmd/other/main.go
