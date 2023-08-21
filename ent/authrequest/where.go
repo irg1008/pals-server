@@ -3,7 +3,7 @@
 package authrequest
 
 import (
-	"irg1008/next-go/ent/predicate"
+	"irg1008/pals/ent/predicate"
 	"time"
 
 	"entgo.io/ent/dialect/sql"

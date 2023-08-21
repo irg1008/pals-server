@@ -1,6 +1,7 @@
 package validation
 
 import (
+	"log"
 	"net/http"
 	"regexp"
 
@@ -45,7 +46,7 @@ func NewCustomValidator() *CustomValidator {
 	err := validator.RegisterValidation("password", isValidPassword)
 
 	if err != nil {
-		panic("Failed to register custom validator")
+		log.Fatal("Failed to register custom validator")
 	}
 
 	return &CustomValidator{validator}

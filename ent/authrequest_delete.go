@@ -4,8 +4,8 @@ package ent
 
 import (
 	"context"
-	"irg1008/next-go/ent/authrequest"
-	"irg1008/next-go/ent/predicate"
+	"irg1008/pals/ent/authrequest"
+	"irg1008/pals/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

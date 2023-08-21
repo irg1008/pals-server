@@ -1,7 +1,7 @@
 package cookies
 
 import (
-	"irg1008/next-go/pkg/config"
+	"irg1008/pals/pkg/config"
 	"net/http"
 
 	"github.com/labstack/echo/v4"

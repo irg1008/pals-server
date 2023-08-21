@@ -2,7 +2,7 @@
 
 package runtime
 
-// The schema-stitching logic is generated in irg1008/next-go/ent/runtime.go
+// The schema-stitching logic is generated in irg1008/pals/ent/runtime.go
 
 const (
 	Version = "v0.12.3"                                         // Version of ent codegen.

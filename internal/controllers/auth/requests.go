@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"irg1008/next-go/pkg/request"
+	"irg1008/pals/pkg/request"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -42,7 +42,7 @@ func (u *AuthController) sendConfirmEmail(email string) error {
 
 	url := u.client.ConfirmEmailURL(req.Token.String())
 	if err := u.mailSender.SendConfirmEmail(email, "Confirm email", url); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Error while sending confirmation email")
+		return echo.NewHTTPError(http.StatusInternalServerError, err, "Error while sending confirmation email")
 	}
 
 	return nil

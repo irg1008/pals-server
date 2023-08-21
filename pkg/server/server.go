@@ -1,13 +1,13 @@
 package server
 
 import (
-	"irg1008/next-go/pkg/client"
-	"irg1008/next-go/pkg/config"
-	"irg1008/next-go/pkg/db"
-	"irg1008/next-go/pkg/mailer"
-	"irg1008/next-go/pkg/roles"
-	"irg1008/next-go/pkg/tls"
-	"irg1008/next-go/pkg/tokens"
+	"irg1008/pals/pkg/client"
+	"irg1008/pals/pkg/config"
+	"irg1008/pals/pkg/db"
+	"irg1008/pals/pkg/mailer"
+	"irg1008/pals/pkg/roles"
+	"irg1008/pals/pkg/tls"
+	"irg1008/pals/pkg/tokens"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"

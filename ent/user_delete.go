@@ -4,8 +4,8 @@ package ent
 
 import (
 	"context"
-	"irg1008/next-go/ent/predicate"
-	"irg1008/next-go/ent/user"
+	"irg1008/pals/ent/predicate"
+	"irg1008/pals/ent/user"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

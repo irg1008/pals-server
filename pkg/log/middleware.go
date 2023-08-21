@@ -1,7 +1,7 @@
 package log
 
 import (
-	"irg1008/next-go/pkg/server"
+	"irg1008/pals/pkg/server"
 	"log/slog"
 
 	"github.com/labstack/echo/v4"

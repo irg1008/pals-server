@@ -1,10 +1,10 @@
 package auth
 
 import (
-	"irg1008/next-go/ent"
-	"irg1008/next-go/pkg/cookies"
-	"irg1008/next-go/pkg/crypt"
-	"irg1008/next-go/pkg/request"
+	"irg1008/pals/ent"
+	"irg1008/pals/pkg/cookies"
+	"irg1008/pals/pkg/crypt"
+	"irg1008/pals/pkg/request"
 	"net/http"
 
 	"github.com/labstack/echo/v4"

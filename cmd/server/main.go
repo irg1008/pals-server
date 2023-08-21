@@ -1,7 +1,7 @@
 package main
 
 import (
-	"irg1008/next-go/internal"
+	"irg1008/pals/internal"
 )
 
 func main() {

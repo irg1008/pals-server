@@ -2,11 +2,11 @@ package services
 
 import (
 	"errors"
-	"irg1008/next-go/ent"
-	"irg1008/next-go/ent/authrequest"
-	"irg1008/next-go/ent/user"
-	"irg1008/next-go/pkg/crypt"
-	"irg1008/next-go/pkg/db"
+	"irg1008/pals/ent"
+	"irg1008/pals/ent/authrequest"
+	"irg1008/pals/ent/user"
+	"irg1008/pals/pkg/crypt"
+	"irg1008/pals/pkg/db"
 	"time"
 
 	"github.com/google/uuid"

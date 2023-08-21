@@ -2,8 +2,8 @@ package db
 
 import (
 	"context"
-	"irg1008/next-go/ent"
-	"irg1008/next-go/ent/migrate"
+	"irg1008/pals/ent"
+	"irg1008/pals/ent/migrate"
 	"log"
 
 	"github.com/labstack/echo/v4"

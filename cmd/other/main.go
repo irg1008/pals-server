@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"irg1008/next-go/pkg/config"
-	"irg1008/next-go/pkg/mailer"
+	"irg1008/pals/pkg/config"
+	"irg1008/pals/pkg/mailer"
 )
 
 func main() {

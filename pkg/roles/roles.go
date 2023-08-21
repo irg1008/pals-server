@@ -1,7 +1,7 @@
 package roles
 
 import (
-	"irg1008/next-go/pkg/tokens"
+	"irg1008/pals/pkg/tokens"
 	"net/http"
 
 	"github.com/golang-jwt/jwt/v5"

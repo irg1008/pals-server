@@ -1,8 +1,8 @@
 package internal
 
 import (
-	"irg1008/next-go/pkg/server"
-	"irg1008/next-go/pkg/validation"
+	"irg1008/pals/pkg/server"
+	"irg1008/pals/pkg/validation"
 
 	"github.com/labstack/echo/v4"
 )

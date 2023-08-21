@@ -1,8 +1,6 @@
 package mailer
 
 import (
-	"irg1008/next-go/pkg/mailer/templates"
-
 	"github.com/jordan-wright/email"
 )
 
@@ -44,9 +42,9 @@ func (s *Sender) sendTemplateEmail(to, subject, url string, getTemplate Template
 }
 
 func (s *Sender) SendConfirmEmail(to, subject, url string) error {
-	return s.sendTemplateEmail(to, subject, url, templates.GetConfirm)
+	return s.sendTemplateEmail(to, subject, url, GetConfirm)
 }
 
 func (s *Sender) SendResetPassword(to, subject, url string) error {
-	return s.sendTemplateEmail(to, subject, url, templates.GetReset)
+	return s.sendTemplateEmail(to, subject, url, GetReset)
 }

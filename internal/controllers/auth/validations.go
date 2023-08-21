@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"irg1008/next-go/ent"
+	"irg1008/pals/ent"
 	"net/http"
 
 	"github.com/labstack/echo/v4"

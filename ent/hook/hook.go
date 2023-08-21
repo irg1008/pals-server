@@ -5,7 +5,7 @@ package hook
 import (
 	"context"
 	"fmt"
-	"irg1008/next-go/ent"
+	"irg1008/pals/ent"
 )
 
 // The AuthRequestFunc type is an adapter to allow the use of ordinary

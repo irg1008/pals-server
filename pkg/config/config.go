@@ -1,6 +1,7 @@
 package config
 
 import (
+	"log/slog"
 	"os"
 	"time"
 
@@ -26,16 +27,18 @@ type Config struct {
 
 func NewConfig() *Config {
 	err := godotenv.Load()
-	if err != nil {
-		panic("Failed to load env file")
-	}
 
 	env := os.Getenv("GO_ENV")
+	isDev := env == "development"
+
+	if err != nil && isDev {
+		slog.Warn("Failed to load from env file, will try to load from env variables")
+	}
 
 	return &Config{
 		Env:       env,
+		IsDev:     isDev,
 		Port:      ":" + os.Getenv("PORT"),
-		IsDev:     env == "development",
 		DBName:    os.Getenv("DB_NAME"),
 		DBUrl:     os.Getenv("DB_URL"),
 		JWTSecret: os.Getenv("JWT_SECRET"),

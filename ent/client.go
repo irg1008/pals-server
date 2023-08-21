@@ -8,10 +8,10 @@ import (
 	"fmt"
 	"log"
 
-	"irg1008/next-go/ent/migrate"
+	"irg1008/pals/ent/migrate"
 
-	"irg1008/next-go/ent/authrequest"
-	"irg1008/next-go/ent/user"
+	"irg1008/pals/ent/authrequest"
+	"irg1008/pals/ent/user"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"

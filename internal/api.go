@@ -1,10 +1,10 @@
 package internal
 
 import (
-	"irg1008/next-go/internal/controllers/auth"
-	"irg1008/next-go/internal/controllers/protected"
-	"irg1008/next-go/pkg/log"
-	"irg1008/next-go/pkg/server"
+	"irg1008/pals/internal/controllers/auth"
+	"irg1008/pals/internal/controllers/protected"
+	"irg1008/pals/pkg/log"
+	"irg1008/pals/pkg/server"
 	"time"
 
 	"github.com/labstack/echo/v4"

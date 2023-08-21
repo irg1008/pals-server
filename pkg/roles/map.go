@@ -1,7 +1,8 @@
 package roles
 
 import (
-	"irg1008/next-go/pkg/tokens"
+	"irg1008/pals/pkg/tokens"
+	"log"
 	"log/slog"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -10,12 +11,12 @@ import (
 
 func userExtractionPanic() {
 	slog.Error("Trying to extract user from context, but no auth middleware was assigned to route.")
-	panic("Provide a valid middleware before calling this function.")
+	log.Fatal("Provide a valid middleware before calling this function.")
 }
 
 func userMappingPanic() {
 	slog.Error("Failed to map user from token.")
-	panic("Review token creation and mapping. Check all fields are assigned correctly.")
+	log.Fatal("Review token creation and mapping. Check all fields are assigned correctly.")
 }
 
 func GetUser(c echo.Context) *tokens.Payload {

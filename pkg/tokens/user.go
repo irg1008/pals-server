@@ -2,8 +2,8 @@ package tokens
 
 import (
 	"fmt"
-	"irg1008/next-go/ent"
-	"irg1008/next-go/pkg/config"
+	"irg1008/pals/ent"
+	"irg1008/pals/pkg/config"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jinzhu/copier"

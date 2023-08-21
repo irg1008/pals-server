@@ -1,8 +1,8 @@
 package protected
 
 import (
-	"irg1008/next-go/pkg/roles"
-	"irg1008/next-go/pkg/server"
+	"irg1008/pals/pkg/roles"
+	"irg1008/pals/pkg/server"
 	"net/http"
 
 	"github.com/labstack/echo/v4"

@@ -1,11 +1,11 @@
 package auth
 
 import (
-	"irg1008/next-go/internal/services"
-	"irg1008/next-go/pkg/client"
-	"irg1008/next-go/pkg/mailer"
-	"irg1008/next-go/pkg/server"
-	"irg1008/next-go/pkg/tokens"
+	"irg1008/pals/internal/services"
+	"irg1008/pals/pkg/client"
+	"irg1008/pals/pkg/mailer"
+	"irg1008/pals/pkg/server"
+	"irg1008/pals/pkg/tokens"
 
 	"github.com/labstack/echo/v4"
 )

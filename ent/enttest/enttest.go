@@ -4,11 +4,11 @@ package enttest
 
 import (
 	"context"
-	"irg1008/next-go/ent"
+	"irg1008/pals/ent"
 	// required by schema hooks.
-	_ "irg1008/next-go/ent/runtime"
+	_ "irg1008/pals/ent/runtime"
 
-	"irg1008/next-go/ent/migrate"
+	"irg1008/pals/ent/migrate"
 
 	"entgo.io/ent/dialect/sql/schema"
 )

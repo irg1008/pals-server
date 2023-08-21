@@ -4,8 +4,8 @@ package ent
 
 import (
 	"fmt"
-	"irg1008/next-go/ent/authrequest"
-	"irg1008/next-go/ent/user"
+	"irg1008/pals/ent/authrequest"
+	"irg1008/pals/ent/user"
 	"strings"
 	"time"
 
