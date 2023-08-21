@@ -38,6 +38,14 @@ tasks:
     cmds:
       - GOOS=windows GOARCH=amd64 go build -o bin/server.exe cmd/server/main.go
 
+  docker:build:
+    cmds:
+      - docker build -t pals-server .
+
+  docker:run:
+    cmds:
+      - docker run -p 8000:8000 --env-file .env pals-server
+
   other:
     cmds:
       - go run cmd/other/main.go
