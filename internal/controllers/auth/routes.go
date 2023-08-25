@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"irg1008/pals/internal/services"
+	"irg1008/pals/internal/services/auth"
 	"irg1008/pals/pkg/client"
 	"irg1008/pals/pkg/mailer"
 	"irg1008/pals/pkg/server"
@@ -12,7 +12,7 @@ import (
 
 type AuthController struct {
 	client     *client.Client
-	service    *services.AuthService
+	service    *auth.AuthService
 	signing    *tokens.Signing
 	mailSender *mailer.Sender
 }
@@ -21,7 +21,7 @@ func Routes(e *echo.Group, s *server.Server) {
 	mailSender := s.Mailer.NewSender("Pals", "no-reply")
 
 	u := &AuthController{
-		service:    &services.AuthService{DB: s.DB},
+		service:    &auth.AuthService{DB: s.DB},
 		client:     s.Client,
 		signing:    s.Signing,
 		mailSender: mailSender,
@@ -37,4 +37,5 @@ func Routes(e *echo.Group, s *server.Server) {
 	g.GET("/request/reset-password", u.CreateNewResetRequest)
 	g.POST("/confirm-email", u.ConfirmEmail)
 	g.POST("/reset-password", u.ResetPassword)
+	g.GET("/me", u.Me, s.Roles.IsLogged)
 }

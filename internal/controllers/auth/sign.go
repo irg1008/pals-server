@@ -5,6 +5,7 @@ import (
 	"irg1008/pals/pkg/cookies"
 	"irg1008/pals/pkg/crypt"
 	"irg1008/pals/pkg/request"
+	"irg1008/pals/pkg/roles"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -100,4 +101,15 @@ func (u *AuthController) renewOrSetTokens(c echo.Context, user *ent.User) error 
 func (u *AuthController) LogOut(c echo.Context) error {
 	cookies.DeleteRefreshTokenCookie(c)
 	return c.NoContent(http.StatusOK)
+}
+
+func (u *AuthController) Me(c echo.Context) error {
+	payload := roles.GetUser(c)
+
+	user, err := u.service.GetUserByEmail(payload.Email)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, "Could not find user")
+	}
+
+	return c.JSON(http.StatusOK, user)
 }
