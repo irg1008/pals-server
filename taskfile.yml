@@ -17,6 +17,10 @@ tasks:
     cmds:
       - go generate ./ent
 
+  db:new:
+    cmds:
+      - go run -mod=mod entgo.io/ent/cmd/ent new {{.CLI_ARGS}}
+
   lint:
     cmds:
       - golangci-lint run
