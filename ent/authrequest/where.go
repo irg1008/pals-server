@@ -80,6 +80,11 @@ func CreatedAt(v time.Time) predicate.AuthRequest {
 	return predicate.AuthRequest(sql.FieldEQ(FieldCreatedAt, v))
 }
 
+// UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
+func UserID(v int) predicate.AuthRequest {
+	return predicate.AuthRequest(sql.FieldEQ(FieldUserID, v))
+}
+
 // ActiveEQ applies the EQ predicate on the "active" field.
 func ActiveEQ(v bool) predicate.AuthRequest {
 	return predicate.AuthRequest(sql.FieldEQ(FieldActive, v))
@@ -228,6 +233,26 @@ func CreatedAtLT(v time.Time) predicate.AuthRequest {
 // CreatedAtLTE applies the LTE predicate on the "created_at" field.
 func CreatedAtLTE(v time.Time) predicate.AuthRequest {
 	return predicate.AuthRequest(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// UserIDEQ applies the EQ predicate on the "user_id" field.
+func UserIDEQ(v int) predicate.AuthRequest {
+	return predicate.AuthRequest(sql.FieldEQ(FieldUserID, v))
+}
+
+// UserIDNEQ applies the NEQ predicate on the "user_id" field.
+func UserIDNEQ(v int) predicate.AuthRequest {
+	return predicate.AuthRequest(sql.FieldNEQ(FieldUserID, v))
+}
+
+// UserIDIn applies the In predicate on the "user_id" field.
+func UserIDIn(vs ...int) predicate.AuthRequest {
+	return predicate.AuthRequest(sql.FieldIn(FieldUserID, vs...))
+}
+
+// UserIDNotIn applies the NotIn predicate on the "user_id" field.
+func UserIDNotIn(vs ...int) predicate.AuthRequest {
+	return predicate.AuthRequest(sql.FieldNotIn(FieldUserID, vs...))
 }
 
 // HasUser applies the HasEdge predicate on the "user" edge.

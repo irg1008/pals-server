@@ -34,11 +34,12 @@ type AuthRequest struct {
 	Type authrequest.Type `json:"type,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"-"`
+	// UserID holds the value of the "user_id" field.
+	UserID int `json:"user_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the AuthRequestQuery when eager-loading is set.
-	Edges         AuthRequestEdges `json:"-"`
-	user_requests *int
-	selectValues  sql.SelectValues
+	Edges        AuthRequestEdges `json:"-"`
+	selectValues sql.SelectValues
 }
 
 // AuthRequestEdges holds the relations/edges for other nodes in the graph.
@@ -70,7 +71,7 @@ func (*AuthRequest) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case authrequest.FieldActive:
 			values[i] = new(sql.NullBool)
-		case authrequest.FieldID:
+		case authrequest.FieldID, authrequest.FieldUserID:
 			values[i] = new(sql.NullInt64)
 		case authrequest.FieldType:
 			values[i] = new(sql.NullString)
@@ -78,8 +79,6 @@ func (*AuthRequest) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullTime)
 		case authrequest.FieldToken:
 			values[i] = new(uuid.UUID)
-		case authrequest.ForeignKeys[0]: // user_requests
-			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -131,12 +130,11 @@ func (ar *AuthRequest) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				ar.CreatedAt = value.Time
 			}
-		case authrequest.ForeignKeys[0]:
+		case authrequest.FieldUserID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field user_requests", value)
+				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value.Valid {
-				ar.user_requests = new(int)
-				*ar.user_requests = int(value.Int64)
+				ar.UserID = int(value.Int64)
 			}
 		default:
 			ar.selectValues.Set(columns[i], values[i])
@@ -193,6 +191,9 @@ func (ar *AuthRequest) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(ar.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("user_id=")
+	builder.WriteString(fmt.Sprintf("%v", ar.UserID))
 	builder.WriteByte(')')
 	return builder.String()
 }

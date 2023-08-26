@@ -36,7 +36,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "authrequest" package.
 	RequestsInverseTable = "auth_requests"
 	// RequestsColumn is the table column denoting the requests relation/edge.
-	RequestsColumn = "user_requests"
+	RequestsColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.

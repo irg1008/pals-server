@@ -51,17 +51,9 @@ func (aru *AuthRequestUpdate) SetType(a authrequest.Type) *AuthRequestUpdate {
 	return aru
 }
 
-// SetUserID sets the "user" edge to the User entity by ID.
-func (aru *AuthRequestUpdate) SetUserID(id int) *AuthRequestUpdate {
-	aru.mutation.SetUserID(id)
-	return aru
-}
-
-// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (aru *AuthRequestUpdate) SetNillableUserID(id *int) *AuthRequestUpdate {
-	if id != nil {
-		aru = aru.SetUserID(*id)
-	}
+// SetUserID sets the "user_id" field.
+func (aru *AuthRequestUpdate) SetUserID(i int) *AuthRequestUpdate {
+	aru.mutation.SetUserID(i)
 	return aru
 }
 
@@ -114,6 +106,9 @@ func (aru *AuthRequestUpdate) check() error {
 		if err := authrequest.TypeValidator(v); err != nil {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "AuthRequest.type": %w`, err)}
 		}
+	}
+	if _, ok := aru.mutation.UserID(); aru.mutation.UserCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "AuthRequest.user"`)
 	}
 	return nil
 }
@@ -206,17 +201,9 @@ func (aruo *AuthRequestUpdateOne) SetType(a authrequest.Type) *AuthRequestUpdate
 	return aruo
 }
 
-// SetUserID sets the "user" edge to the User entity by ID.
-func (aruo *AuthRequestUpdateOne) SetUserID(id int) *AuthRequestUpdateOne {
-	aruo.mutation.SetUserID(id)
-	return aruo
-}
-
-// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (aruo *AuthRequestUpdateOne) SetNillableUserID(id *int) *AuthRequestUpdateOne {
-	if id != nil {
-		aruo = aruo.SetUserID(*id)
-	}
+// SetUserID sets the "user_id" field.
+func (aruo *AuthRequestUpdateOne) SetUserID(i int) *AuthRequestUpdateOne {
+	aruo.mutation.SetUserID(i)
 	return aruo
 }
 
@@ -282,6 +269,9 @@ func (aruo *AuthRequestUpdateOne) check() error {
 		if err := authrequest.TypeValidator(v); err != nil {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "AuthRequest.type": %w`, err)}
 		}
+	}
+	if _, ok := aruo.mutation.UserID(); aruo.mutation.UserCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "AuthRequest.user"`)
 	}
 	return nil
 }

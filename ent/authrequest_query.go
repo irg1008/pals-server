@@ -27,7 +27,6 @@ type AuthRequestQuery struct {
 	inters     []Interceptor
 	predicates []predicate.AuthRequest
 	withUser   *UserQuery
-	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -373,18 +372,11 @@ func (arq *AuthRequestQuery) prepareQuery(ctx context.Context) error {
 func (arq *AuthRequestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*AuthRequest, error) {
 	var (
 		nodes       = []*AuthRequest{}
-		withFKs     = arq.withFKs
 		_spec       = arq.querySpec()
 		loadedTypes = [1]bool{
 			arq.withUser != nil,
 		}
 	)
-	if arq.withUser != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, authrequest.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*AuthRequest).scanValues(nil, columns)
 	}
@@ -416,10 +408,7 @@ func (arq *AuthRequestQuery) loadUser(ctx context.Context, query *UserQuery, nod
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*AuthRequest)
 	for i := range nodes {
-		if nodes[i].user_requests == nil {
-			continue
-		}
-		fk := *nodes[i].user_requests
+		fk := nodes[i].UserID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -436,7 +425,7 @@ func (arq *AuthRequestQuery) loadUser(ctx context.Context, query *UserQuery, nod
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "user_requests" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "user_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -469,6 +458,9 @@ func (arq *AuthRequestQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != authrequest.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if arq.withUser != nil {
+			_spec.Node.AddColumnOnce(authrequest.FieldUserID)
 		}
 	}
 	if ps := arq.predicates; len(ps) > 0 {

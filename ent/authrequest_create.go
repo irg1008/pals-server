@@ -72,17 +72,9 @@ func (arc *AuthRequestCreate) SetNillableCreatedAt(t *time.Time) *AuthRequestCre
 	return arc
 }
 
-// SetUserID sets the "user" edge to the User entity by ID.
-func (arc *AuthRequestCreate) SetUserID(id int) *AuthRequestCreate {
-	arc.mutation.SetUserID(id)
-	return arc
-}
-
-// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (arc *AuthRequestCreate) SetNillableUserID(id *int) *AuthRequestCreate {
-	if id != nil {
-		arc = arc.SetUserID(*id)
-	}
+// SetUserID sets the "user_id" field.
+func (arc *AuthRequestCreate) SetUserID(i int) *AuthRequestCreate {
+	arc.mutation.SetUserID(i)
 	return arc
 }
 
@@ -158,6 +150,12 @@ func (arc *AuthRequestCreate) check() error {
 	if _, ok := arc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "AuthRequest.created_at"`)}
 	}
+	if _, ok := arc.mutation.UserID(); !ok {
+		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "AuthRequest.user_id"`)}
+	}
+	if _, ok := arc.mutation.UserID(); !ok {
+		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "AuthRequest.user"`)}
+	}
 	return nil
 }
 
@@ -218,7 +216,7 @@ func (arc *AuthRequestCreate) createSpec() (*AuthRequest, *sqlgraph.CreateSpec) 
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.user_requests = &nodes[0]
+		_node.UserID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

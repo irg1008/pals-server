@@ -20,7 +20,7 @@ var (
 		{Name: "token", Type: field.TypeUUID, Unique: true},
 		{Name: "type", Type: field.TypeEnum, Enums: []string{"confirmEmail", "resetPassword"}},
 		{Name: "created_at", Type: field.TypeTime},
-		{Name: "user_requests", Type: field.TypeInt, Nullable: true},
+		{Name: "user_id", Type: field.TypeInt},
 	}
 	// AuthRequestsTable holds the schema information for the "auth_requests" table.
 	AuthRequestsTable = &schema.Table{

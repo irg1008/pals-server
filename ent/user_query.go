@@ -416,7 +416,9 @@ func (uq *UserQuery) loadRequests(ctx context.Context, query *AuthRequestQuery, 
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(authrequest.FieldUserID)
+	}
 	query.Where(predicate.AuthRequest(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(user.RequestsColumn), fks...))
 	}))
@@ -425,13 +427,10 @@ func (uq *UserQuery) loadRequests(ctx context.Context, query *AuthRequestQuery, 
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.user_requests
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "user_requests" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.UserID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "user_requests" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}
