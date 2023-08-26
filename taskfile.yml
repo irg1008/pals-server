@@ -13,6 +13,10 @@ tasks:
     cmds:
       - wgo -file .go task run
 
+  debug:
+    cmds:
+      - task run --watch
+
   db:
     cmds:
       - go generate ./ent
@@ -23,7 +27,7 @@ tasks:
 
   lint:
     cmds:
-      - golangci-lint run
+      - golangci-lint run --tests=false
 
   format:
     cmds:
@@ -31,24 +35,54 @@ tasks:
 
   test:
     cmds:
-      #  TODO
-      - go test -v ./...
+      - gotestsum --format pkgname {{.ARGS}} -- {{.TEST_ARGS}} ./...
+
+  test:watch:
+    cmds:
+      - task: test
+        vars:
+          ARGS: --watch
+
+  test:cover:
+    cmds:
+      - task: test
+        vars:
+          TEST_ARGS: -coverprofile=out/coverage.out
+
+  test:watch:cover:
+    cmds:
+      - task: test
+        vars:
+          TEST_ARGS: -coverprofile=out/coverage.out
+          ARGS: --watch
+
+  test:report:
+    deps: [test:cover]
+    cmds:
+      - go tool cover -html=out/coverage.out
 
   build:
     cmds:
-      - go build -o bin/server cmd/server/main.go
+      - go build -o bin/{{default "server" .NAME}} cmd/server/main.go
 
   build:win:
     cmds:
-      - GOOS=windows GOARCH=amd64 go build -o bin/server.exe cmd/server/main.go
+      - task: build
+        vars:
+          NAME: server.exe
+    env:
+      GOOS: windows
+      GOARCH: amd64
 
   docker:build:
+    deps: [build]
     cmds:
       - docker build -t pals-server .
 
   docker:run:
+    dotenv: [.env]
     cmds:
-      - docker run -p 8000:8000 --env-file .env pals-server
+      - docker run -p $PORT:$PORT --env-file .env pals-server
 
   other:
     cmds:
