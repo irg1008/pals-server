@@ -34,13 +34,10 @@ func (s *AuthService) GetUserById(id int) (*ent.User, error) {
 	return s.DB.User.Get(s.DB.Ctx, id)
 }
 
-func (s *AuthService) deleteRequests(userID int, requestType authrequest.Type) error {
+func (s *AuthService) deleteRequests(userID int, requestType authrequest.Type) {
 	isUserRequest := authrequest.HasUserWith(user.ID(userID))
 	isSameType := authrequest.TypeEQ(requestType)
-	_, err := s.DB.AuthRequest.Delete().
-		Where(isUserRequest, isSameType).
-		Exec(s.DB.Ctx)
-	return err
+	s.DB.AuthRequest.Delete().Where(isUserRequest, isSameType).ExecX(s.DB.Ctx)
 }
 
 const (
@@ -67,11 +64,7 @@ func (s *AuthService) createRequest(
 	requestUpdate := s.DB.AuthRequest.Update().Where(isUserRequest, isSameType)
 
 	if opts.invalidateRest {
-		requestUpdate = requestUpdate.SetActive(false)
-	}
-
-	if err := requestUpdate.Exec(s.DB.Ctx); err != nil {
-		return nil, err
+		requestUpdate.SetActive(false).ExecX(s.DB.Ctx)
 	}
 
 	expiresAt := time.Now().Add(confirmExpiryTime)
@@ -104,8 +97,7 @@ func (s *AuthService) confirmRequest(
 	}
 
 	isSameToken := authrequest.TokenEQ(id)
-	isSameType := authrequest.TypeEQ(requestType)
-	req, err := s.DB.AuthRequest.Query().Where(isSameToken, isSameType).WithUser().Only(s.DB.Ctx)
+	req, err := s.DB.AuthRequest.Query().Where(isSameToken).WithUser().Only(s.DB.Ctx)
 
 	if err != nil {
 		return nil, errors.New("request not found")
@@ -121,13 +113,9 @@ func (s *AuthService) confirmRequest(
 
 	user := req.Edges.User
 	if opts.deleteAll {
-		err = s.deleteRequests(user.ID, requestType)
+		s.deleteRequests(user.ID, requestType)
 	} else {
-		err = req.Update().SetActive(false).Exec(s.DB.Ctx)
-	}
-
-	if err != nil {
-		return nil, err
+		req.Update().SetActive(false).ExecX(s.DB.Ctx)
 	}
 
 	return user, nil
@@ -146,8 +134,7 @@ func (s *AuthService) ConfirmEmail(token string) (*ent.User, error) {
 		return nil, err
 	}
 
-	err = user.Update().SetIsConfirmed(true).Exec(s.DB.Ctx)
-	return user, err
+	return user.Update().SetIsConfirmed(true).Save(s.DB.Ctx)
 }
 
 func (s *AuthService) CreatePasswordResetRequest(email string) (*ent.AuthRequest, error) {
@@ -156,6 +143,11 @@ func (s *AuthService) CreatePasswordResetRequest(email string) (*ent.AuthRequest
 }
 
 func (s *AuthService) ResetPassword(token string, password string) (*ent.User, error) {
+	hash, err := crypt.Hash(password)
+	if err != nil {
+		return nil, err
+	}
+
 	opts := ConfirmRequestOptions{deleteAll: true}
 	user, err := s.confirmRequest(token, authrequest.TypeResetPassword, opts)
 
@@ -163,14 +155,5 @@ func (s *AuthService) ResetPassword(token string, password string) (*ent.User, e
 		return nil, err
 	}
 
-	hash, err := crypt.Hash(password)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := user.Update().SetPassword(hash).Exec(s.DB.Ctx); err != nil {
-		return nil, err
-	}
-
-	return user, nil
+	return user.Update().SetPassword(hash).Save(s.DB.Ctx)
 }

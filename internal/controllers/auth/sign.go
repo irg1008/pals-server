@@ -12,7 +12,7 @@ import (
 )
 
 type NewPasswordData struct {
-	Password        string `json:"password" validate:"required,min=5,max=100,password"`
+	Password        string `json:"password" validate:"required,min=5,max=72,password"`
 	ConfirmPassword string `json:"confirmPassword" validate:"required,eqfield=Password"`
 }
 
