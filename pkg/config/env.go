@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"log/slog"
 	"os"
 
@@ -45,12 +46,21 @@ func NewConfig() *Config {
 		slog.Warn("Failed to load from env file, will try to load from env variables")
 	}
 
+	dbPort := os.Getenv("POSTGRES_PORT")
+	dbUser := os.Getenv("POSTGRES_USER")
+	dbPass := os.Getenv("POSTGRES_PASSWORD")
+	dbName := os.Getenv("POSTGRES_DB")
+	dbHost := os.Getenv("POSTGRES_HOST")
+	dbUrl := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", dbUser, dbPass, dbHost, dbPort, dbName)
+
+	fmt.Print(dbUrl)
+
 	return &Config{
 		Env:   env,
 		IsDev: isDev,
 		Port:  ":" + os.Getenv("PORT"),
 
-		DBUrl:     os.Getenv("DB_URL"),
+		DBUrl:     dbUrl,
 		JWTSecret: os.Getenv("JWT_SECRET"),
 
 		ClientUrl: os.Getenv("CLIENT_URL"),

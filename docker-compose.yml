@@ -4,7 +4,7 @@ name: "pals"
 services:
   db:
     image: postgres
-    container_name: postgres
+    container_name: pals-db
     restart: unless-stopped
     networks:
       - app_network
@@ -30,6 +30,8 @@ services:
       - app_network
     env_file:
       - .env
+    environment:
+      POSTGRES_HOST: db
     ports:
       - "${PORT}:${PORT}"
 
