@@ -82,7 +82,7 @@ tasks:
           ARGS: --watch
 
   test:report:
-    deps: [test:cover]
+    deps: [test:cov]
     cmds:
       - go tool cover -html=out/coverage.out
 
