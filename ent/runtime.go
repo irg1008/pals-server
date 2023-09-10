@@ -32,11 +32,11 @@ func init() {
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescIsConfirmed is the schema descriptor for is_confirmed field.
-	userDescIsConfirmed := userFields[2].Descriptor()
+	userDescIsConfirmed := userFields[3].Descriptor()
 	// user.DefaultIsConfirmed holds the default value on creation for the is_confirmed field.
 	user.DefaultIsConfirmed = userDescIsConfirmed.Default.(bool)
 	// userDescCreatedAt is the schema descriptor for created_at field.
-	userDescCreatedAt := userFields[3].Descriptor()
+	userDescCreatedAt := userFields[4].Descriptor()
 	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
 	user.DefaultCreatedAt = userDescCreatedAt.Default.(func() time.Time)
 }
