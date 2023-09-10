@@ -20,17 +20,14 @@ type Config struct {
 	Domain    string
 	AppName   string
 
-	GoogleClientID     string
-	GoogleClientSecret string
-
 	EmailHost    string
 	EmailPort    int
 	EmailUser    string
 	EmailPass    string
 	EmailAddress string
 
-	AuthCoreUrl string
-	AuthCoreKey string
+	GoogleClientID     string
+	GoogleClientSecret string
 }
 
 func NewConfig() *Config {
@@ -44,22 +41,24 @@ func NewConfig() *Config {
 	}
 
 	return &Config{
-		Env:                env,
-		IsDev:              isDev,
-		Port:               ":" + os.Getenv("PORT"),
-		JWTSecret:          os.Getenv("JWT_SECRET"),
-		ClientUrl:          os.Getenv("CLIENT_URL"),
-		APIUrl:             os.Getenv("API_URL"),
-		AppName:            os.Getenv("APP_NAME"),
-		EmailHost:          os.Getenv("HOST_ADDRESS"),
-		EmailPort:          587,
-		EmailUser:          os.Getenv("HOST_USERNAME"),
-		EmailPass:          os.Getenv("HOST_PASSWORD"),
-		EmailAddress:       os.Getenv("HOST_ADDRESS"),
-		Domain:             os.Getenv("DOMAIN"),
-		AuthCoreUrl:        os.Getenv("AUTH_CORE_URL"),
-		AuthCoreKey:        os.Getenv("AUTH_CORE_KEY"),
-		DBUrl:              os.Getenv("DB_URL"),
+		Env:   env,
+		IsDev: isDev,
+		Port:  ":" + os.Getenv("PORT"),
+
+		DBUrl:     os.Getenv("DB_URL"),
+		JWTSecret: os.Getenv("JWT_SECRET"),
+
+		ClientUrl: os.Getenv("CLIENT_URL"),
+		APIUrl:    os.Getenv("API_URL"),
+		Domain:    os.Getenv("DOMAIN"),
+		AppName:   os.Getenv("APP_NAME"),
+
+		EmailHost:    os.Getenv("HOST_ADDRESS"),
+		EmailPort:    587,
+		EmailUser:    os.Getenv("HOST_USERNAME"),
+		EmailPass:    os.Getenv("HOST_PASSWORD"),
+		EmailAddress: os.Getenv("HOST_ADDRESS"),
+
 		GoogleClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
 		GoogleClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
 	}

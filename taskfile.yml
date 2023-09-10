@@ -61,13 +61,13 @@ tasks:
         vars:
           ARGS: --watch
 
-  test:cover:
+  test:cov:
     cmds:
       - task: test
         vars:
           TEST_ARGS: -coverprofile=out/coverage.out
 
-  test:watch:cover:
+  test:watch:cov:
     cmds:
       - task: test
         vars:

@@ -77,7 +77,7 @@ func (u *AuthController) CreateNewConfirmEmailRequest(c echo.Context) error {
 		return err
 	}
 
-	if err := isConfirmed(user); err != nil {
+	if err := isNotConfirmed(user); err != nil {
 		return err
 	}
 
@@ -128,7 +128,7 @@ func (u *AuthController) CreateNewResetRequest(c echo.Context) error {
 		return err
 	}
 
-	if err := isNotConfirmed(user); err != nil {
+	if err := isConfirmed(user); err != nil {
 		return err
 	}
 
@@ -187,7 +187,15 @@ func (u *AuthController) SignUp(c echo.Context) error {
 
 func (u *AuthController) ValidLogin(email string, pass string) (bool, error) {
 	user, err := u.userExistForEmail(email)
-	return err == nil && crypt.CompareHashAndPwd(user.Password, pass), nil
+	if err != nil {
+		return false, nil
+	}
+
+	if err = isConfirmed(user); err != nil {
+		return false, err
+	}
+
+	return crypt.CompareHashAndPwd(user.Password, pass), nil
 }
 
 func (u *AuthController) userExistForEmail(email string) (*ent.User, error) {
@@ -198,7 +206,7 @@ func (u *AuthController) userExistForEmail(email string) (*ent.User, error) {
 	return user, nil
 }
 
-func isNotConfirmed(user *ent.User) error {
+func isConfirmed(user *ent.User) error {
 	if !user.IsConfirmed {
 		return echo.NewHTTPError(http.StatusForbidden, "Confirm your email first")
 	}
@@ -206,7 +214,7 @@ func isNotConfirmed(user *ent.User) error {
 
 }
 
-func isConfirmed(user *ent.User) error {
+func isNotConfirmed(user *ent.User) error {
 	if user.IsConfirmed {
 		return echo.NewHTTPError(http.StatusConflict, "User already confirmed")
 	}
