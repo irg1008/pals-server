@@ -114,7 +114,8 @@ func (u *AuthController) ConfirmEmail(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	return nil
+	return c.NoContent(http.StatusOK)
+
 }
 
 func (u *AuthController) CreateNewResetRequest(c echo.Context) error {
@@ -165,7 +166,7 @@ func (u *AuthController) ResetPassword(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	return nil
+	return c.NoContent(http.StatusOK)
 }
 
 func (u *AuthController) SignUp(c echo.Context) error {

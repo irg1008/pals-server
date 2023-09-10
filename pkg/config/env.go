@@ -28,6 +28,11 @@ type Config struct {
 
 	GoogleClientID     string
 	GoogleClientSecret string
+
+	AppleClientID   string
+	AppleTeamID     string
+	AppleKeyID      string
+	ApplePrivateKey string
 }
 
 func NewConfig() *Config {
@@ -61,5 +66,10 @@ func NewConfig() *Config {
 
 		GoogleClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
 		GoogleClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
+
+		AppleClientID:   os.Getenv("APPLE_CLIENT_ID"),
+		AppleTeamID:     os.Getenv("APPLE_TEAM_ID"),
+		AppleKeyID:      os.Getenv("APPLE_KEY_ID"),
+		ApplePrivateKey: os.Getenv("APPLE_PRIVATE_KEY"),
 	}
 }

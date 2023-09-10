@@ -5,6 +5,7 @@ func MockService() *AuthService {
 		AppName:   "mock",
 		JWTSecret: "secret",
 		URL:       "http://localhost:8001",
+		Local:     true,
 	}
 
 	service := NewAuthService(&opts)

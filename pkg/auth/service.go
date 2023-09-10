@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -19,9 +18,11 @@ type AuthService struct {
 }
 
 type BaseOptions struct {
-	AppName   string
-	JWTSecret string
-	URL       string
+	AppName      string
+	JWTSecret    string
+	URL          string
+	Local        bool
+	ClaimsUpdate func(claims token.Claims) token.Claims
 }
 
 const (
@@ -30,6 +31,13 @@ const (
 )
 
 func getAuthOptions(opts *BaseOptions) auth.Opts {
+	var sameSiteCookie http.SameSite
+	if opts.Local {
+		sameSiteCookie = http.SameSiteLaxMode
+	} else {
+		sameSiteCookie = http.SameSiteStrictMode
+	}
+
 	return auth.Opts{
 		SecretReader: token.SecretFunc(func(id string) (string, error) {
 			return opts.JWTSecret, nil
@@ -40,16 +48,11 @@ func getAuthOptions(opts *BaseOptions) auth.Opts {
 		URL:            opts.URL,
 		AvatarStore:    avatar.NewNoOp(),
 		SecureCookies:  true,
-		SameSiteCookie: http.SameSiteStrictMode,
-		ClaimsUpd:      token.ClaimsUpdFunc(AddUserRoles),
+		SameSiteCookie: sameSiteCookie,
+		ClaimsUpd:      token.ClaimsUpdFunc(opts.ClaimsUpdate),
+		// Logger:         logger.Std,
+		AudSecrets: false,
 	}
-}
-
-func AddUserRoles(claims token.Claims) token.Claims {
-	fmt.Print(claims)
-	claims.User.SetSliceAttr("roles", []string{"admin"})
-	claims.User.Picture = ""
-	return claims
 }
 
 func NewAuthService(baseOpts *BaseOptions) *AuthService {

@@ -20,32 +20,20 @@ type Server struct {
 
 func NewServer() *Server {
 	config := config.NewConfig()
-
-	auth := auth.NewAuthService(&auth.BaseOptions{
-		AppName:   config.AppName,
-		JWTSecret: config.JWTSecret,
-		URL:       config.APIUrl,
-	})
-
-	mailHostInfo := &mailer.HostInfo{
-		Username: config.EmailUser,
-		Address:  config.EmailHost,
-		Port:     config.EmailPort,
-		Password: config.EmailPass,
-	}
+	db := db.NewDB(config.DBUrl)
 
 	return &Server{
 		Config: config,
 		Client: client.NewClient(config.ClientUrl),
-		DB:     db.NewDB(config.DBUrl),
-		Mailer: mailer.NewMailer(mailHostInfo, config.Domain),
-		Auth:   auth,
+		DB:     db,
+		Auth:   NewAuthService(config, db),
+		Mailer: NewMailer(config),
 	}
 }
 
 func NewConfiguredServer(e *echo.Echo) *Server {
 	server := NewServer()
 	server.SetMiddlewares(e)
-	server.SetAuthProviders()
+	server.SetAuthProviders(server.Config)
 	return server
 }

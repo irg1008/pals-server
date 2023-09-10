@@ -1,6 +1,10 @@
 package auth
 
-import "github.com/go-pkgz/auth/provider"
+import (
+	"log"
+
+	"github.com/go-pkgz/auth/provider"
+)
 
 type EmailProviderOpts struct {
 	Name  string
@@ -19,6 +23,23 @@ type GoogleProviderOpts struct {
 
 func (s *AuthService) AddGoogleProvider(opts *GoogleProviderOpts) {
 	s.AddProvider("google", opts.ClientID, opts.ClientSecret)
+	s.refreshProviders()
+}
+
+type AppleProviderOpts struct {
+	*provider.AppleConfig
+	PrivateKey string
+}
+
+func (opts *AppleProviderOpts) LoadPrivateKey() (b []byte, e error) {
+	return []byte(opts.PrivateKey), nil
+}
+
+func (s *AuthService) AddCustomAppleProvider(opts *AppleProviderOpts) {
+	err := s.AddAppleProvider(*opts.AppleConfig, opts)
+	if err != nil {
+		log.Fatal(err)
+	}
 	s.refreshProviders()
 }
 

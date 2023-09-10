@@ -23,7 +23,6 @@ func LoggerMiddleware(debug bool) echo.MiddlewareFunc {
 				slog.Int("status", v.Status),
 				slog.String("duration", v.Latency.String()),
 				slog.String("from", v.RemoteIP),
-				slog.Int64("content-length", c.Response().Size),
 			)
 
 			return nil

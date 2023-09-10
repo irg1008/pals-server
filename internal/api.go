@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"irg1008/pals/internal/controllers/protected"
+	"irg1008/pals/internal/controllers/user"
 	"irg1008/pals/pkg/server"
 	"time"
 
@@ -21,7 +21,7 @@ func APIRoutes(e *echo.Echo, s *server.Server) *echo.Group {
 	api := e.Group("/api")
 	setAPIMiddlewares(api)
 
-	protected.Routes(api, s)
+	user.Routes(api, s)
 
 	return api
 }
