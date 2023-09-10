@@ -18,12 +18,14 @@ const (
 	Label = "user_data"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldUserID holds the string denoting the user_id field in the database.
-	FieldUserID = "user_id"
+	// FieldAuthID holds the string denoting the auth_id field in the database.
+	FieldAuthID = "auth_id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
+	// FieldPicture holds the string denoting the picture field in the database.
+	FieldPicture = "picture"
 	// FieldRole holds the string denoting the role field in the database.
 	FieldRole = "role"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -35,9 +37,10 @@ const (
 // Columns holds all SQL columns for userdata fields.
 var Columns = []string{
 	FieldID,
-	FieldUserID,
+	FieldAuthID,
 	FieldName,
 	FieldEmail,
+	FieldPicture,
 	FieldRole,
 	FieldCreatedAt,
 }
@@ -91,9 +94,9 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// ByUserID orders the results by the user_id field.
-func ByUserID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldUserID, opts...).ToFunc()
+// ByAuthID orders the results by the auth_id field.
+func ByAuthID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAuthID, opts...).ToFunc()
 }
 
 // ByName orders the results by the name field.
@@ -104,6 +107,11 @@ func ByName(opts ...sql.OrderTermOption) OrderOption {
 // ByEmail orders the results by the email field.
 func ByEmail(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEmail, opts...).ToFunc()
+}
+
+// ByPicture orders the results by the picture field.
+func ByPicture(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPicture, opts...).ToFunc()
 }
 
 // ByRole orders the results by the role field.

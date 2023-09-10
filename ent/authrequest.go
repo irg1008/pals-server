@@ -27,7 +27,7 @@ type AuthRequest struct {
 	// Active holds the value of the "active" field.
 	Active bool `json:"active,omitempty"`
 	// ExpiresAt holds the value of the "expires_at" field.
-	ExpiresAt time.Time `json:"expires_at,omitempty"`
+	ExpiresAt time.Time `json:"expiresAt"`
 	// Token holds the value of the "token" field.
 	Token uuid.UUID `json:"token,omitempty"`
 	// Type holds the value of the "type" field.

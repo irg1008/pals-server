@@ -265,12 +265,12 @@ func (udq *UserDataQuery) Clone() *UserDataQuery {
 // Example:
 //
 //	var v []struct {
-//		UserID string `json:"user_id,omitempty"`
+//		AuthID string `json:"authId"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.UserData.Query().
-//		GroupBy(userdata.FieldUserID).
+//		GroupBy(userdata.FieldAuthID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (udq *UserDataQuery) GroupBy(field string, fields ...string) *UserDataGroupBy {
@@ -288,11 +288,11 @@ func (udq *UserDataQuery) GroupBy(field string, fields ...string) *UserDataGroup
 // Example:
 //
 //	var v []struct {
-//		UserID string `json:"user_id,omitempty"`
+//		AuthID string `json:"authId"`
 //	}
 //
 //	client.UserData.Query().
-//		Select(userdata.FieldUserID).
+//		Select(userdata.FieldAuthID).
 //		Scan(ctx, &v)
 func (udq *UserDataQuery) Select(fields ...string) *UserDataSelect {
 	udq.ctx.Fields = append(udq.ctx.Fields, fields...)

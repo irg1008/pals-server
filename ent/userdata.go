@@ -21,12 +21,14 @@ type UserData struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
-	// UserID holds the value of the "user_id" field.
-	UserID string `json:"user_id,omitempty"`
+	// User ID from auth service. Prefixed with email, google, etc
+	AuthID string `json:"authId"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Email holds the value of the "email" field.
 	Email string `json:"email,omitempty"`
+	// Picture holds the value of the "picture" field.
+	Picture string `json:"picture,omitempty"`
 	// Role holds the value of the "role" field.
 	Role userdata.Role `json:"role,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -41,7 +43,7 @@ func (*UserData) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case userdata.FieldID:
 			values[i] = new(sql.NullInt64)
-		case userdata.FieldUserID, userdata.FieldName, userdata.FieldEmail, userdata.FieldRole:
+		case userdata.FieldAuthID, userdata.FieldName, userdata.FieldEmail, userdata.FieldPicture, userdata.FieldRole:
 			values[i] = new(sql.NullString)
 		case userdata.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -66,11 +68,11 @@ func (ud *UserData) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			ud.ID = int(value.Int64)
-		case userdata.FieldUserID:
+		case userdata.FieldAuthID:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field user_id", values[i])
+				return fmt.Errorf("unexpected type %T for field auth_id", values[i])
 			} else if value.Valid {
-				ud.UserID = value.String
+				ud.AuthID = value.String
 			}
 		case userdata.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -83,6 +85,12 @@ func (ud *UserData) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field email", values[i])
 			} else if value.Valid {
 				ud.Email = value.String
+			}
+		case userdata.FieldPicture:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field picture", values[i])
+			} else if value.Valid {
+				ud.Picture = value.String
 			}
 		case userdata.FieldRole:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -132,14 +140,17 @@ func (ud *UserData) String() string {
 	var builder strings.Builder
 	builder.WriteString("UserData(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", ud.ID))
-	builder.WriteString("user_id=")
-	builder.WriteString(ud.UserID)
+	builder.WriteString("auth_id=")
+	builder.WriteString(ud.AuthID)
 	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(ud.Name)
 	builder.WriteString(", ")
 	builder.WriteString("email=")
 	builder.WriteString(ud.Email)
+	builder.WriteString(", ")
+	builder.WriteString("picture=")
+	builder.WriteString(ud.Picture)
 	builder.WriteString(", ")
 	builder.WriteString("role=")
 	builder.WriteString(fmt.Sprintf("%v", ud.Role))

@@ -18,7 +18,7 @@ type AuthRequest struct {
 func (AuthRequest) Fields() []ent.Field {
 	return []ent.Field{
 		field.Bool("active"),
-		field.Time("expires_at"),
+		field.Time("expires_at").StructTag(`json:"expiresAt"`),
 		field.UUID("token", uuid.UUID{}).Unique().Immutable().Default(uuid.New),
 		field.Enum("type").Values("confirmEmail", "resetPassword"),
 		field.Time("created_at").Default(time.Now).Immutable().StructTag(`json:"-"`),

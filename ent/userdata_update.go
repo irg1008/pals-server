@@ -31,12 +31,6 @@ func (udu *UserDataUpdate) Where(ps ...predicate.UserData) *UserDataUpdate {
 	return udu
 }
 
-// SetUserID sets the "user_id" field.
-func (udu *UserDataUpdate) SetUserID(s string) *UserDataUpdate {
-	udu.mutation.SetUserID(s)
-	return udu
-}
-
 // SetName sets the "name" field.
 func (udu *UserDataUpdate) SetName(s string) *UserDataUpdate {
 	udu.mutation.SetName(s)
@@ -46,6 +40,40 @@ func (udu *UserDataUpdate) SetName(s string) *UserDataUpdate {
 // SetEmail sets the "email" field.
 func (udu *UserDataUpdate) SetEmail(s string) *UserDataUpdate {
 	udu.mutation.SetEmail(s)
+	return udu
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (udu *UserDataUpdate) SetNillableEmail(s *string) *UserDataUpdate {
+	if s != nil {
+		udu.SetEmail(*s)
+	}
+	return udu
+}
+
+// ClearEmail clears the value of the "email" field.
+func (udu *UserDataUpdate) ClearEmail() *UserDataUpdate {
+	udu.mutation.ClearEmail()
+	return udu
+}
+
+// SetPicture sets the "picture" field.
+func (udu *UserDataUpdate) SetPicture(s string) *UserDataUpdate {
+	udu.mutation.SetPicture(s)
+	return udu
+}
+
+// SetNillablePicture sets the "picture" field if the given value is not nil.
+func (udu *UserDataUpdate) SetNillablePicture(s *string) *UserDataUpdate {
+	if s != nil {
+		udu.SetPicture(*s)
+	}
+	return udu
+}
+
+// ClearPicture clears the value of the "picture" field.
+func (udu *UserDataUpdate) ClearPicture() *UserDataUpdate {
+	udu.mutation.ClearPicture()
 	return udu
 }
 
@@ -117,14 +145,20 @@ func (udu *UserDataUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := udu.mutation.UserID(); ok {
-		_spec.SetField(userdata.FieldUserID, field.TypeString, value)
-	}
 	if value, ok := udu.mutation.Name(); ok {
 		_spec.SetField(userdata.FieldName, field.TypeString, value)
 	}
 	if value, ok := udu.mutation.Email(); ok {
 		_spec.SetField(userdata.FieldEmail, field.TypeString, value)
+	}
+	if udu.mutation.EmailCleared() {
+		_spec.ClearField(userdata.FieldEmail, field.TypeString)
+	}
+	if value, ok := udu.mutation.Picture(); ok {
+		_spec.SetField(userdata.FieldPicture, field.TypeString, value)
+	}
+	if udu.mutation.PictureCleared() {
+		_spec.ClearField(userdata.FieldPicture, field.TypeString)
 	}
 	if value, ok := udu.mutation.Role(); ok {
 		_spec.SetField(userdata.FieldRole, field.TypeEnum, value)
@@ -149,12 +183,6 @@ type UserDataUpdateOne struct {
 	mutation *UserDataMutation
 }
 
-// SetUserID sets the "user_id" field.
-func (uduo *UserDataUpdateOne) SetUserID(s string) *UserDataUpdateOne {
-	uduo.mutation.SetUserID(s)
-	return uduo
-}
-
 // SetName sets the "name" field.
 func (uduo *UserDataUpdateOne) SetName(s string) *UserDataUpdateOne {
 	uduo.mutation.SetName(s)
@@ -164,6 +192,40 @@ func (uduo *UserDataUpdateOne) SetName(s string) *UserDataUpdateOne {
 // SetEmail sets the "email" field.
 func (uduo *UserDataUpdateOne) SetEmail(s string) *UserDataUpdateOne {
 	uduo.mutation.SetEmail(s)
+	return uduo
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (uduo *UserDataUpdateOne) SetNillableEmail(s *string) *UserDataUpdateOne {
+	if s != nil {
+		uduo.SetEmail(*s)
+	}
+	return uduo
+}
+
+// ClearEmail clears the value of the "email" field.
+func (uduo *UserDataUpdateOne) ClearEmail() *UserDataUpdateOne {
+	uduo.mutation.ClearEmail()
+	return uduo
+}
+
+// SetPicture sets the "picture" field.
+func (uduo *UserDataUpdateOne) SetPicture(s string) *UserDataUpdateOne {
+	uduo.mutation.SetPicture(s)
+	return uduo
+}
+
+// SetNillablePicture sets the "picture" field if the given value is not nil.
+func (uduo *UserDataUpdateOne) SetNillablePicture(s *string) *UserDataUpdateOne {
+	if s != nil {
+		uduo.SetPicture(*s)
+	}
+	return uduo
+}
+
+// ClearPicture clears the value of the "picture" field.
+func (uduo *UserDataUpdateOne) ClearPicture() *UserDataUpdateOne {
+	uduo.mutation.ClearPicture()
 	return uduo
 }
 
@@ -265,14 +327,20 @@ func (uduo *UserDataUpdateOne) sqlSave(ctx context.Context) (_node *UserData, er
 			}
 		}
 	}
-	if value, ok := uduo.mutation.UserID(); ok {
-		_spec.SetField(userdata.FieldUserID, field.TypeString, value)
-	}
 	if value, ok := uduo.mutation.Name(); ok {
 		_spec.SetField(userdata.FieldName, field.TypeString, value)
 	}
 	if value, ok := uduo.mutation.Email(); ok {
 		_spec.SetField(userdata.FieldEmail, field.TypeString, value)
+	}
+	if uduo.mutation.EmailCleared() {
+		_spec.ClearField(userdata.FieldEmail, field.TypeString)
+	}
+	if value, ok := uduo.mutation.Picture(); ok {
+		_spec.SetField(userdata.FieldPicture, field.TypeString, value)
+	}
+	if uduo.mutation.PictureCleared() {
+		_spec.ClearField(userdata.FieldPicture, field.TypeString)
 	}
 	if value, ok := uduo.mutation.Role(); ok {
 		_spec.SetField(userdata.FieldRole, field.TypeEnum, value)

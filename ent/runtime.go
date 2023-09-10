@@ -43,7 +43,7 @@ func init() {
 	userdataFields := schema.UserData{}.Fields()
 	_ = userdataFields
 	// userdataDescCreatedAt is the schema descriptor for created_at field.
-	userdataDescCreatedAt := userdataFields[4].Descriptor()
+	userdataDescCreatedAt := userdataFields[5].Descriptor()
 	// userdata.DefaultCreatedAt holds the default value on creation for the created_at field.
 	userdata.DefaultCreatedAt = userdataDescCreatedAt.Default.(func() time.Time)
 }

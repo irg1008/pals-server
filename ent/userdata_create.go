@@ -24,9 +24,9 @@ type UserDataCreate struct {
 	hooks    []Hook
 }
 
-// SetUserID sets the "user_id" field.
-func (udc *UserDataCreate) SetUserID(s string) *UserDataCreate {
-	udc.mutation.SetUserID(s)
+// SetAuthID sets the "auth_id" field.
+func (udc *UserDataCreate) SetAuthID(s string) *UserDataCreate {
+	udc.mutation.SetAuthID(s)
 	return udc
 }
 
@@ -39,6 +39,28 @@ func (udc *UserDataCreate) SetName(s string) *UserDataCreate {
 // SetEmail sets the "email" field.
 func (udc *UserDataCreate) SetEmail(s string) *UserDataCreate {
 	udc.mutation.SetEmail(s)
+	return udc
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (udc *UserDataCreate) SetNillableEmail(s *string) *UserDataCreate {
+	if s != nil {
+		udc.SetEmail(*s)
+	}
+	return udc
+}
+
+// SetPicture sets the "picture" field.
+func (udc *UserDataCreate) SetPicture(s string) *UserDataCreate {
+	udc.mutation.SetPicture(s)
+	return udc
+}
+
+// SetNillablePicture sets the "picture" field if the given value is not nil.
+func (udc *UserDataCreate) SetNillablePicture(s *string) *UserDataCreate {
+	if s != nil {
+		udc.SetPicture(*s)
+	}
 	return udc
 }
 
@@ -117,14 +139,11 @@ func (udc *UserDataCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (udc *UserDataCreate) check() error {
-	if _, ok := udc.mutation.UserID(); !ok {
-		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "UserData.user_id"`)}
+	if _, ok := udc.mutation.AuthID(); !ok {
+		return &ValidationError{Name: "auth_id", err: errors.New(`ent: missing required field "UserData.auth_id"`)}
 	}
 	if _, ok := udc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "UserData.name"`)}
-	}
-	if _, ok := udc.mutation.Email(); !ok {
-		return &ValidationError{Name: "email", err: errors.New(`ent: missing required field "UserData.email"`)}
 	}
 	if _, ok := udc.mutation.Role(); !ok {
 		return &ValidationError{Name: "role", err: errors.New(`ent: missing required field "UserData.role"`)}
@@ -163,9 +182,9 @@ func (udc *UserDataCreate) createSpec() (*UserData, *sqlgraph.CreateSpec) {
 		_node = &UserData{config: udc.config}
 		_spec = sqlgraph.NewCreateSpec(userdata.Table, sqlgraph.NewFieldSpec(userdata.FieldID, field.TypeInt))
 	)
-	if value, ok := udc.mutation.UserID(); ok {
-		_spec.SetField(userdata.FieldUserID, field.TypeString, value)
-		_node.UserID = value
+	if value, ok := udc.mutation.AuthID(); ok {
+		_spec.SetField(userdata.FieldAuthID, field.TypeString, value)
+		_node.AuthID = value
 	}
 	if value, ok := udc.mutation.Name(); ok {
 		_spec.SetField(userdata.FieldName, field.TypeString, value)
@@ -174,6 +193,10 @@ func (udc *UserDataCreate) createSpec() (*UserData, *sqlgraph.CreateSpec) {
 	if value, ok := udc.mutation.Email(); ok {
 		_spec.SetField(userdata.FieldEmail, field.TypeString, value)
 		_node.Email = value
+	}
+	if value, ok := udc.mutation.Picture(); ok {
+		_spec.SetField(userdata.FieldPicture, field.TypeString, value)
+		_node.Picture = value
 	}
 	if value, ok := udc.mutation.Role(); ok {
 		_spec.SetField(userdata.FieldRole, field.TypeEnum, value)
