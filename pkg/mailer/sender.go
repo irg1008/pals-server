@@ -18,7 +18,7 @@ func (s *Sender) newEmail(to string, subject string) *email.Email {
 	e := email.NewEmail()
 	e.To = []string{to}
 	e.Subject = subject
-	from := emailAddress{*s.data, s.Mailer.domain}
+	from := EmailAddress{*s.data, s.Mailer.domain}
 	e.From = from.Address()
 	return e
 }

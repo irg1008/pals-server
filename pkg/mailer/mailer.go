@@ -6,11 +6,12 @@ import (
 	"github.com/jordan-wright/email"
 )
 
-const (
-	hostUsername = "resend"
-	hostAddress  = "smtp.resend.com"
-	hostPort     = 587
-)
+type HostInfo struct {
+	Username string
+	Address  string
+	Port     int
+	Password string
+}
 
 type Mailer struct {
 	smtpServer smtpServer
@@ -18,9 +19,9 @@ type Mailer struct {
 	domain     string
 }
 
-func NewMailer(domain string, pwd string) *Mailer {
-	smtpServer := smtpServer{hostAddress, hostPort}
-	auth := smtp.PlainAuth("", hostUsername, pwd, hostAddress)
+func NewMailer(host *HostInfo, domain string) *Mailer {
+	smtpServer := smtpServer{host.Address, host.Port}
+	auth := smtp.PlainAuth("", host.Username, host.Password, host.Address)
 	return &Mailer{smtpServer, auth, domain}
 }
 

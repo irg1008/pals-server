@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/labstack/echo/v4"
+	_ "github.com/lib/pq"
 )
 
 type DB struct {
@@ -20,7 +21,7 @@ type CustomContext struct {
 }
 
 func getDBConnection(url string) *ent.Client {
-	db, err := ent.Open("sqlite3", url)
+	db, err := ent.Open("postgres", url)
 
 	if err != nil {
 		log.Fatalf("failed opening connection to sqlite: %v", err)

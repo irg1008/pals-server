@@ -1,15 +1,13 @@
 package log
 
 import (
-	"irg1008/pals/pkg/server"
 	"log/slog"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func GetLoggerMiddleware(s *server.Server) echo.MiddlewareFunc {
-	debug := s.Config.IsDev
+func LoggerMiddleware(debug bool) echo.MiddlewareFunc {
 	SetDefaultLogger(debug)
 
 	return middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
@@ -25,6 +23,7 @@ func GetLoggerMiddleware(s *server.Server) echo.MiddlewareFunc {
 				slog.Int("status", v.Status),
 				slog.String("duration", v.Latency.String()),
 				slog.String("from", v.RemoteIP),
+				slog.Int64("content-length", c.Response().Size),
 			)
 
 			return nil

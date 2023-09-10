@@ -9,13 +9,15 @@ import (
 
 func StartServer() {
 	e := echo.New()
+
 	e.HideBanner = true
 	e.Validator = validation.NewCustomValidator()
 
-	server := server.NewServer()
-	APIRoutes(e, server)
+	server := server.NewConfiguredServer(e)
 
 	e.Static("/", "public")
+	AuthRoutes(e, server)
+	APIRoutes(e, server)
 
 	err := server.Start(e)
 	e.Logger.Fatal(err)
