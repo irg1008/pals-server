@@ -20,6 +20,8 @@ type Tx struct {
 	AuthRequest *AuthRequestClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// UserData is the client for interacting with the UserData builders.
+	UserData *UserDataClient
 
 	// lazily loaded.
 	client     *Client
@@ -153,6 +155,7 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.AuthRequest = NewAuthRequestClient(tx.config)
 	tx.User = NewUserClient(tx.config)
+	tx.UserData = NewUserDataClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

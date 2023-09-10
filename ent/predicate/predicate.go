@@ -15,3 +15,6 @@ type AuthRequest func(*sql.Selector)
 
 // User is the predicate function for user builders.
 type User func(*sql.Selector)
+
+// UserData is the predicate function for userdata builders.
+type UserData func(*sql.Selector)

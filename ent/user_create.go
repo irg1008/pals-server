@@ -37,20 +37,6 @@ func (uc *UserCreate) SetPassword(s string) *UserCreate {
 	return uc
 }
 
-// SetRole sets the "role" field.
-func (uc *UserCreate) SetRole(u user.Role) *UserCreate {
-	uc.mutation.SetRole(u)
-	return uc
-}
-
-// SetNillableRole sets the "role" field if the given value is not nil.
-func (uc *UserCreate) SetNillableRole(u *user.Role) *UserCreate {
-	if u != nil {
-		uc.SetRole(*u)
-	}
-	return uc
-}
-
 // SetIsConfirmed sets the "is_confirmed" field.
 func (uc *UserCreate) SetIsConfirmed(b bool) *UserCreate {
 	uc.mutation.SetIsConfirmed(b)
@@ -129,10 +115,6 @@ func (uc *UserCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (uc *UserCreate) defaults() {
-	if _, ok := uc.mutation.Role(); !ok {
-		v := user.DefaultRole
-		uc.mutation.SetRole(v)
-	}
 	if _, ok := uc.mutation.IsConfirmed(); !ok {
 		v := user.DefaultIsConfirmed
 		uc.mutation.SetIsConfirmed(v)
@@ -150,14 +132,6 @@ func (uc *UserCreate) check() error {
 	}
 	if _, ok := uc.mutation.Password(); !ok {
 		return &ValidationError{Name: "password", err: errors.New(`ent: missing required field "User.password"`)}
-	}
-	if _, ok := uc.mutation.Role(); !ok {
-		return &ValidationError{Name: "role", err: errors.New(`ent: missing required field "User.role"`)}
-	}
-	if v, ok := uc.mutation.Role(); ok {
-		if err := user.RoleValidator(v); err != nil {
-			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "User.role": %w`, err)}
-		}
 	}
 	if _, ok := uc.mutation.IsConfirmed(); !ok {
 		return &ValidationError{Name: "is_confirmed", err: errors.New(`ent: missing required field "User.is_confirmed"`)}
@@ -198,10 +172,6 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.Password(); ok {
 		_spec.SetField(user.FieldPassword, field.TypeString, value)
 		_node.Password = value
-	}
-	if value, ok := uc.mutation.Role(); ok {
-		_spec.SetField(user.FieldRole, field.TypeEnum, value)
-		_node.Role = value
 	}
 	if value, ok := uc.mutation.IsConfirmed(); ok {
 		_spec.SetField(user.FieldIsConfirmed, field.TypeBool, value)

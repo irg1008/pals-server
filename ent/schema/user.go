@@ -19,7 +19,6 @@ func (User) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("email").Unique(),
 		field.String("password").Sensitive(),
-		field.Enum("role").Values("admin", "user").Default("user"),
 		field.Bool("is_confirmed").Default(false).StructTag(`json:"-"`),
 		field.Time("created_at").Default(time.Now).Immutable().StructTag(`json:"-"`),
 	}

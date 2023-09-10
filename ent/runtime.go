@@ -10,6 +10,7 @@ import (
 	"irg1008/pals/ent/authrequest"
 	"irg1008/pals/ent/schema"
 	"irg1008/pals/ent/user"
+	"irg1008/pals/ent/userdata"
 	"time"
 
 	"github.com/google/uuid"
@@ -32,11 +33,17 @@ func init() {
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescIsConfirmed is the schema descriptor for is_confirmed field.
-	userDescIsConfirmed := userFields[3].Descriptor()
+	userDescIsConfirmed := userFields[2].Descriptor()
 	// user.DefaultIsConfirmed holds the default value on creation for the is_confirmed field.
 	user.DefaultIsConfirmed = userDescIsConfirmed.Default.(bool)
 	// userDescCreatedAt is the schema descriptor for created_at field.
-	userDescCreatedAt := userFields[4].Descriptor()
+	userDescCreatedAt := userFields[3].Descriptor()
 	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
 	user.DefaultCreatedAt = userDescCreatedAt.Default.(func() time.Time)
+	userdataFields := schema.UserData{}.Fields()
+	_ = userdataFields
+	// userdataDescCreatedAt is the schema descriptor for created_at field.
+	userdataDescCreatedAt := userdataFields[4].Descriptor()
+	// userdata.DefaultCreatedAt holds the default value on creation for the created_at field.
+	userdata.DefaultCreatedAt = userdataDescCreatedAt.Default.(func() time.Time)
 }

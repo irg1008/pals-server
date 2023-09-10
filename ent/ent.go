@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"irg1008/pals/ent/authrequest"
 	"irg1008/pals/ent/user"
+	"irg1008/pals/ent/userdata"
 	"reflect"
 	"sync"
 
@@ -80,6 +81,7 @@ func checkColumn(table, column string) error {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			authrequest.Table: authrequest.ValidColumn,
 			user.Table:        user.ValidColumn,
+			userdata.Table:    userdata.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)
