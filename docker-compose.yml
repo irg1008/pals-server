@@ -1,0 +1,69 @@
+version: "3.8"
+name: "pals"
+
+services:
+  db:
+    image: postgres
+    container_name: postgres
+    restart: unless-stopped
+    networks:
+      - app_network
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    env_file:
+      - .env
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "${POSTGRES_DB}", "-U", "${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      
+  # auth_core:
+  #   image: registry.supertokens.io/supertokens/supertokens-postgresql
+  #   container_name: supertokens
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   restart: unless-stopped
+  #   networks:
+  #     - app_network
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     API_KEYS: ${AUTH_CORE_KEY}
+  #     POSTGRESQL_HOST: db
+  #     POSTGRESQL_USER: ${POSTGRES_USER}
+  #     POSTGRESQL_PASSWORD: ${POSTGRES_PASSWORD}
+  #     POSTGRESQL_DATABASE_NAME: ${POSTGRES_DB}
+  #     POSTGRESQL_PORT: ${POSTGRES_PORT}
+  #     POSTGRESQL_TABLE_NAMES_PREFIX: "st"
+  #   ports:
+  #     - "${AUTH_PORT}:3567"
+  #   healthcheck:
+  #     test: >
+  #       ["CMD-SHELL", "bash",  "-c", 'exec 3<>/dev/tcp/127.0.0.1/${AUTH_PORT} && echo -e "GET /hello HTTP/1.1\r\nhost: 127.0.0.1:${AUTH_PORT}\r\nConnection: close\r\n\r\n" >&3 && cat <&3 | grep "Hello"']
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+  backend:
+    build: .
+    profiles: ["debug"]
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: 
+      - app_network
+    env_file:
+      - .env
+    ports:
+      - "${PORT}:${PORT}"
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  pgdata:

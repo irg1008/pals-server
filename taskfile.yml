@@ -6,16 +6,20 @@ tasks:
       - go mod tidy
 
   run:
+    deps:
+      - db:up
     cmds:
       - go run cmd/server/main.go
+      - defer: db:down
 
   dev:
+    deps:
+      - db:up
     cmds:
-      - wgo -file .go task run
+      - wgo run -file .go cmd/server/main.go
+      - defer: db:down
 
-  debug:
-    cmds:
-      - task run --watch
+  # DB
 
   db:
     cmds:
@@ -25,6 +29,18 @@ tasks:
     cmds:
       - go run -mod=mod entgo.io/ent/cmd/ent new {{.CLI_ARGS}}
 
+  db:up:
+    run: once
+    cmds:
+      - docker compose up -d
+
+  db:down:
+    run: once
+    cmds:
+      - docker compose down
+
+  # PRETTIER - LINTER
+
   lint:
     cmds:
       - golangci-lint run --tests=false
@@ -32,6 +48,8 @@ tasks:
   format:
     cmds:
       - gofmt -w -s .
+
+  # TEST
 
   test:
     cmds:
@@ -61,6 +79,8 @@ tasks:
     cmds:
       - go tool cover -html=out/coverage.out
 
+  # BUILD
+
   build:
     cmds:
       - go build -o bin/{{default "server" .NAME}} cmd/server/main.go
@@ -74,16 +94,8 @@ tasks:
       GOOS: windows
       GOARCH: amd64
 
-  docker:build:
-    deps: [build]
-    cmds:
-      - docker build -t pals-server .
+  # OTHERS
 
-  docker:run:
-    dotenv: [.env]
+  lab:
     cmds:
-      - docker run -p $PORT:$PORT --env-file .env pals-server
-
-  other:
-    cmds:
-      - go run cmd/other/main.go
+      - wgo run cmd/lab/main.go
